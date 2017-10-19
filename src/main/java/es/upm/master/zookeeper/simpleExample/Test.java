@@ -43,12 +43,11 @@ public class Test {
 		CreateTree tree = new CreateTree();
 		tree.constructTree(zoo);
 
-		//create znode
-		//zoo.create("/test", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-		//create znode sequential
-		//zoo.create("/test/sequential", "znode_sequential".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
-		//create znode ephemereal
-		//zoo.create("/test/ephemeral", "znode_ephemeral".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+		ZKManager manager = new ZKManager();
+        //menu for deciding what to do inside class manager- we should move it
+		manager.ZKManager(zoo);
+
+
 
 	}
 
