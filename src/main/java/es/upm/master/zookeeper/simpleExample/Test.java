@@ -10,10 +10,14 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZKUtil;
+
 
 import es.upm.master.zookeeper.SimpleWatcher;
 
 import org.apache.zookeeper.Watcher.Event.KeeperState;
+import org.apache.zookeeper.data.Stat;
+
 
 public class Test {
 	
@@ -39,6 +43,12 @@ public class Test {
 		});
 
 		connectionLatch.await(10, TimeUnit.SECONDS);
+        Stat stat = zoo.exists("/System", true);
+        System.out.println("this is the value of stat in the Initial path /System" + stat);
+		if(stat!= null) {
+            ZKUtil util = new ZKUtil();
+            util.deleteRecursive(zoo, "/System");
+        }
 
 		CreateTree tree = new CreateTree();
 		tree.constructTree(zoo);
