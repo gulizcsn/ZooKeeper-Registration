@@ -7,6 +7,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZKUtil;
 public class CreateTree {
 
     public void constructTree(ZooKeeper zookeeperIns) throws KeeperException, InterruptedException {
@@ -27,6 +28,11 @@ public class CreateTree {
         zookeeperIns.create("/System/Request/Quit", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         //create znode sequential
         zookeeperIns.create("/System/Registry", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        //create znode sequential
+    }
+
+
+    public void destroyTree(ZooKeeper zookeeperIns) throws KeeperException, InterruptedException {
+        zookeeperIns.close();
+
     }
 }

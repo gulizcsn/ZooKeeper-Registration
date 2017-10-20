@@ -29,28 +29,35 @@ public class ZKManager {
     public void ZKManager(ZooKeeper zoo) throws KeeperException, InterruptedException {
         //calling the methon create and giving the original connection zoo, and the user name
         create("Belus",zoo);
+        create("Bebegimm",zoo);
+        create("EnEsteVideeeeo",zoo);
+        quit("Belus",zoo);
     }
 
      //I created variables for paths.
-        private String enroll = "/System/Request/Enroll/";
-        private String registry = "/System/Registry/";
+    private String enroll = "/System/Request/Enroll/";
+    private String registry = "/System/Registry/";
+    private String quit = "/System/Request/Quit/";
 
-        //create menu for deciding what to do.
-        /**
-         * 1-create user (enroll)
-         * 2 quit user
-         *
-         *
-         *
-         * if user chose ==1
-         * create("nombre_user")  (this node should be ephemeral)
-         */
+    //create menu for deciding what to do.
+    /**
+     * 1-create user (enroll)
+     * 2 quit user
+     *
+     *
+     *
+     * if user chose ==1
+     * create("nombre_user")  (this node should be ephemeral)
+     */
 
 
     public void create(String name, ZooKeeper zoo) throws KeeperException, InterruptedException {
         String path = enroll + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
         stat = this.getZNodeStatsReg(name, zoo);
+
+        System.out.println(stat);
+
         if (stat != null) {
             System.out.println("User already registered");
         } else {
@@ -58,16 +65,68 @@ public class ZKManager {
             System.out.println("this is the path" + path);
             //creates the first node called Bitch
             zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+
+            //registration process will start
+            register(name,zoo);
+
+        }
+
+
+    }
+
+    private void register(String name, ZooKeeper zoo){
+
+        boolean registerStatus = registerSystem(name,zoo);
+        if(registerStatus){
+            System.out.println("Registration is successful");
+        }
+        else{
+            System.out.println("Registration is not successful");
         }
     }
 
-    public Stat getZNodeStatsReg(String name, ZooKeeper zoo) throws KeeperException,
-            InterruptedException {
+    public boolean registerSystem(String name, ZooKeeper zoo) {
         String path = registry + name;
-        stat = zoo.exists(path, true);
-        return stat;
+        boolean registerCode = true;
+        try {
+            zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch (KeeperException e) {
+            registerCode=false;
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            registerCode=false;
+            e.printStackTrace();
+        }
+
+        return registerCode;
+    }
+
+    public Stat getZNodeStatsReg(String name, ZooKeeper zoo) throws KeeperException,
+                InterruptedException {
+            String path = registry + name;
+            stat = zoo.exists(path, true);
+            return stat;
 
 
+    }
+
+    public void quit(String name, ZooKeeper zoo) throws KeeperException, InterruptedException {
+        String path = quit + name;
+        //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
+        stat = this.getZNodeStatsReg(name, zoo);
+        System.out.println(stat);
+        if (stat != null) {
+            System.out.println("User is in the system");
+            System.out.println(stat);
+            //delete the node who wants to quit the system
+            zoo.delete(path,zoo.exists(path,true).getVersion());
+
+        } else {
+            System.out.println("User can not be found in the system");
+            System.out.println("this is the path" + path);
+
+        }
     }
 
 /*
