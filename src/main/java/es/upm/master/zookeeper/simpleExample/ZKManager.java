@@ -25,30 +25,27 @@ import es.upm.master.zookeeper.SimpleWatcher;
 
 public class ZKManager {
     private static Stat stat;
+    private static ZooKeeper zoo;
 
     public void ZKManager(ZooKeeper zoo) throws KeeperException, InterruptedException {
+
+
+        WelcomeInterface welcome = new WelcomeInterface();
+        welcome.initComponents(zoo);
+        welcome.setVisible(true);
+
         //calling the methon create and giving the original connection zoo, and the user name
-        create("Belus",zoo);
+        /*create("Belus",zoo);
         create("Bebegimm",zoo);
         create("EnEsteVideeeeo",zoo);
-        quit("Belus",zoo);
+        quit("Belus",zoo);*/
     }
 
      //I created variables for paths.
     private String enroll = "/System/Request/Enroll/";
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
-
-    //create menu for deciding what to do.
-    /**
-     * 1-create user (enroll)
-     * 2 quit user
-     *
-     *
-     *
-     * if user chose ==1
-     * create("nombre_user")  (this node should be ephemeral)
-     */
+    //private String receivedName;
 
 
     public void create(String name, ZooKeeper zoo) throws KeeperException, InterruptedException {
@@ -68,11 +65,9 @@ public class ZKManager {
 
 
             //registration process will start
-            register(name,zoo);
+            register(name, zoo);
 
         }
-
-
     }
 
     private void register(String name, ZooKeeper zoo){
