@@ -1,3 +1,4 @@
+/*
 package es.upm.master.zookeeper.simpleExample;
 
 import org.apache.zookeeper.KeeperException;
@@ -25,9 +26,11 @@ public class WelcomeInterface extends javax.swing.JFrame {
         JPanel panel = new JPanel();
         // adding panel to frame
         frame.add(panel);
-        /* calling user defined method for adding components
+        */
+/* calling user defined method for adding components
          * to the panel.
-         */
+         *//*
+
         placeComponents(panel,zoo);
         // Setting the frame visibility to true
         frame.setVisible(true);
@@ -41,9 +44,11 @@ public class WelcomeInterface extends javax.swing.JFrame {
         userLabel.setBounds(10,20,80,25);
         panel.add(userLabel);
 
-        /* Creating text field where user is supposed to
+        */
+/* Creating text field where user is supposed to
          * enter user name.
-         */
+         *//*
+
 
         JTextField userText = new JTextField(20);
         userText.setBounds(100,20,165,25);
@@ -85,10 +90,12 @@ public class WelcomeInterface extends javax.swing.JFrame {
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
-                /*}else{
+                */
+/*}else{
                     //we should create banner saying that the username must be filled
                 }
-*/
+*//*
+
             }
         });
 
@@ -105,10 +112,12 @@ public class WelcomeInterface extends javax.swing.JFrame {
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
-          /*  }else{
+          */
+/*  }else{
                 //we should create banner saying that the username must be filled
-            }*/
+            }*//*
+
             }
         });
     }
-}
+}*/

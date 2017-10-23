@@ -50,12 +50,12 @@ public class Test {
             util.deleteRecursive(zoo, "/System");
         }
 
-		CreateTree tree = new CreateTree();
-		tree.constructTree(zoo);
-
 		ZKManager manager = new ZKManager();
         //menu for deciding what to do inside class manager- we should move it
 		manager.ZKManager(zoo);
+
+
+
 
 
 
