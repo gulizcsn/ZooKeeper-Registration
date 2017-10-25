@@ -21,12 +21,6 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZKUtil;
 
 
-        import org.apache.zookeeper.Watcher.Event.KeeperState;
-
-/*first of all, lets try to add a new ID under request/enroll
-*/
-
-
 public class ZKManager implements Watcher{
     private static Stat stat;
     private static ZooKeeper zoo;
@@ -34,25 +28,12 @@ public class ZKManager implements Watcher{
     public void ZKManager() throws KeeperException, InterruptedException, IOException {
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
 
-        destroyTree();
+        //destroyTree();
         constructTree();
-        ZKWriter zkw=new ZKWriter();
-        zkw.create("Santiago");
 
-
-/*        WelcomeInterface welcome = new WelcomeInterface();
-        welcome.initComponents(zoo);
-        welcome.setVisible(true);*/
-
-        //calling the methon create and giving the original connection zoo, and the user name
-        /*create("Belus",zoo);
-        create("Bebegimm",zoo);
-        create("EnEsteVideeeeo",zoo);
-        quit("Belus",zoo);*/
     }
 
     public void constructTree() throws KeeperException, InterruptedException {
-
 
         String auth = "user:pwd";
         zoo.addAuthInfo("digest",auth.getBytes());
@@ -73,13 +54,18 @@ public class ZKManager implements Watcher{
     }
 
     public void destroyTree() throws KeeperException, InterruptedException {
+        //addauth digest user:pwd ( in command line)
+        String auth = "user:pwd";
+        this.zoo.addAuthInfo("digest",auth.getBytes());
+         // call deleteTree recursively zoo.delete
 
+        /*
         Stat stat = zoo.exists("/System", true);
         System.out.println("this is the value of stat in the Initial path /System" + stat);
         if(stat!= null) {
             ZKUtil util = new ZKUtil();
             util.deleteRecursive(zoo, "/System");
-        }
+        }*/
     }
 
 
@@ -100,6 +86,8 @@ public class ZKManager implements Watcher{
             System.out.println(event.getPath() + " children created");
             //if it comes from /enroll- run ZKManager registry
             if(event.getPath().startsWith("/System/Request/Enroll")){
+                //new children appeared- lets check the REGISTRATIONLIST
+
                 List<String> children = null;
                 try {
                     children = zoo.getChildren("/System/Request/Enroll",this);
