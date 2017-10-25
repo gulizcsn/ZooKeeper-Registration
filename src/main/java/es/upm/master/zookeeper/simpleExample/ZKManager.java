@@ -28,7 +28,7 @@ public class ZKManager implements Watcher{
     public void ZKManager() throws KeeperException, InterruptedException, IOException {
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
 
-        //destroyTree();
+        destroyTree("/System");
         constructTree();
 
     }
@@ -53,19 +53,28 @@ public class ZKManager implements Watcher{
 
     }
 
-    public void destroyTree() throws KeeperException, InterruptedException {
+    public void destroyTree(String treePath) throws KeeperException, InterruptedException {
         //addauth digest user:pwd ( in command line)
         String auth = "user:pwd";
         this.zoo.addAuthInfo("digest",auth.getBytes());
          // call deleteTree recursively zoo.delete
 
-        /*
-        Stat stat = zoo.exists("/System", true);
-        System.out.println("this is the value of stat in the Initial path /System" + stat);
-        if(stat!= null) {
-            ZKUtil util = new ZKUtil();
-            util.deleteRecursive(zoo, "/System");
-        }*/
+        // If node doesn't exist
+        if(zoo.exists(treePath, false) == null) {
+            System.out.println("WARNING: Node doesn't exist. Unsuccesful attempt " + treePath);
+            return;
+        }
+        else {
+
+            List<String> children = zoo.getChildren(treePath, false);
+
+            for( String item:children) {
+
+                destroyTree(treePath + '/' + item);
+            }
+
+            zoo.delete(treePath, -1);
+        }
     }
 
 

@@ -28,7 +28,7 @@ public class Test {
 
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter();
-		zkw.create("Belen");
+		zkw.create("Guliz");
         zkw.quit("Belen");
 
 

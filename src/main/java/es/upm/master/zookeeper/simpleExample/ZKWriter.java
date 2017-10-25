@@ -65,8 +65,9 @@ public class ZKWriter {
         if (stat != null) {
             System.out.println("User is in the system");
             System.out.println(stat);
-            //delete the node who wants to quit the system
-            zoo.delete(path,zoo.exists(path,true).getVersion());
+            //create the node who wants to quit the system
+            zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
 
         } else {
             System.out.println("User can not be found in the system");
