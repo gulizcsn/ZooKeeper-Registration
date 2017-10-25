@@ -15,8 +15,10 @@ public class ZKWriter {
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
 
-    public void ZKManager() throws KeeperException, InterruptedException, IOException {
+    public void ZKWriter() throws KeeperException, InterruptedException, IOException {
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
+
+
 
 
 
@@ -25,10 +27,12 @@ public class ZKWriter {
 
     public void create(String name) throws KeeperException, InterruptedException {
         String path = enroll + name;
+        //String pathReg = registry + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-        stat = this.getZNodeStatsReg(name);
+        System.out.println("ha entrado en crear");
 
-        System.out.println(stat);
+        //stat= zoo.exists(pathReg, true);
+        stat = this.getZNodeStatsReg(name);
 
         if (stat != null) {
             System.out.println("User already registered");
@@ -44,7 +48,9 @@ public class ZKWriter {
     public Stat getZNodeStatsReg(String name) throws KeeperException,
             InterruptedException {
         String path = registry + name;
+
         stat = zoo.exists(path, true);
+
         return stat;
 
 
