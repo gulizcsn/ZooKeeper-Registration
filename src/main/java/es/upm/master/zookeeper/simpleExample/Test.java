@@ -25,34 +25,11 @@ public class Test {
 	public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
 		
 		
-		String host = "localhost:2181";
-		int sessionTimeout = 3000;
-		final CountDownLatch connectionLatch = new CountDownLatch(1);
-		 
-		//create a connection
-		ZooKeeper zoo = new ZooKeeper(host, sessionTimeout , new Watcher() {
 
-			@Override
-			public void process(WatchedEvent we) {
-
-				if(we.getState() == KeeperState.SyncConnected){
-					connectionLatch.countDown();
-				}
-
-			}
-		});
-
-		connectionLatch.await(10, TimeUnit.SECONDS);
-        Stat stat = zoo.exists("/System", true);
-        System.out.println("this is the value of stat in the Initial path /System" + stat);
-		if(stat!= null) {
-            ZKUtil util = new ZKUtil();
-            util.deleteRecursive(zoo, "/System");
-        }
 
 		ZKManager manager = new ZKManager();
         //menu for deciding what to do inside class manager- we should move it
-		manager.ZKManager(zoo);
+		manager.ZKManager();
 
 
 
@@ -61,5 +38,27 @@ public class Test {
 
 	}
 
+	static ZooKeeper zooConnect() throws IOException, InterruptedException {
+
+		String host = "localhost:2181";
+		int sessionTimeout = 3000;
+		final CountDownLatch connectionLatch = new CountDownLatch(1);
+
+		//create a connection
+		ZooKeeper zoo = new ZooKeeper(host, sessionTimeout, new Watcher() {
+
+			@Override
+			public void process(WatchedEvent we) {
+
+				if (we.getState() == KeeperState.SyncConnected) {
+					connectionLatch.countDown();
+				}
+
+			}
+		});
+
+		connectionLatch.await(10, TimeUnit.SECONDS);
+		return zoo;
+	}
 
 }

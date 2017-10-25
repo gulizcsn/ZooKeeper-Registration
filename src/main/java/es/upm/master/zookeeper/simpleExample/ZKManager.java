@@ -31,10 +31,13 @@ public class ZKManager implements Watcher{
     private static Stat stat;
     private static ZooKeeper zoo;
 
-    public void ZKManager(ZooKeeper zoo) throws KeeperException, InterruptedException {
-        constructTree(zoo);
+    public void ZKManager() throws KeeperException, InterruptedException, IOException {
+        this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
+
+        destroyTree();
+        constructTree();
         ZKWriter zkw=new ZKWriter();
-        zkw.create("Santiago", zoo);
+        zkw.create("Santiago");
 
 
 /*        WelcomeInterface welcome = new WelcomeInterface();
@@ -48,14 +51,8 @@ public class ZKManager implements Watcher{
         quit("Belus",zoo);*/
     }
 
-    public void constructTree(ZooKeeper zoo) throws KeeperException, InterruptedException {
+    public void constructTree() throws KeeperException, InterruptedException {
 
-        //create znode
-        //zoo.create("/test", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        //create znode sequential
-        //zoo.create("/test/sequential", "znode_sequential".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
-        //create znode ephemereal
-        //zoo.create("/test/ephemeral", "znode_ephemeral".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 
         String auth = "user:pwd";
         zoo.addAuthInfo("digest",auth.getBytes());
@@ -71,13 +68,12 @@ public class ZKManager implements Watcher{
         zoo.create("/System/Registry", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
 
 
-        SetWatchers(zoo);
+        SetWatchers();
 
     }
 
-    public void destroyTree(ZooKeeper zoo) throws KeeperException, InterruptedException {
+    public void destroyTree() throws KeeperException, InterruptedException {
 
-       // zoo.close();
         Stat stat = zoo.exists("/System", true);
         System.out.println("this is the value of stat in the Initial path /System" + stat);
         if(stat!= null) {
@@ -109,7 +105,7 @@ public class ZKManager implements Watcher{
                     children = zoo.getChildren("/System/Request/Enroll",this);
                     Iterator<String> iterator = children.iterator();
                     while (iterator.hasNext()) {
-                        register(iterator.next(),zoo);
+                        register(iterator.next());
                     }
                 } catch (KeeperException e) {
                     e.printStackTrace();
@@ -132,7 +128,7 @@ public class ZKManager implements Watcher{
             System.out.println(event.getPath() + " what is this??");
         }
 
-        SetWatchers(zoo);
+        SetWatchers();
 
     }
 
@@ -143,14 +139,14 @@ public class ZKManager implements Watcher{
     //private String receivedName;
 
 
-    private void register(String name, ZooKeeper zoo)throws KeeperException,
+    private void register(String name)throws KeeperException,
             InterruptedException {
         String path = registry + name;
 
         Stat stat = zoo.exists(path, true);
         if (stat == null) {
             System.out.println("User is not in Register- lets create it");
-            boolean registerStatus = registerSystem(name,zoo);
+            boolean registerStatus = registerSystem(name);
             if(registerStatus){
                 System.out.println("Registration is successful");
             }
@@ -162,7 +158,7 @@ public class ZKManager implements Watcher{
     }
 
 
-    public boolean registerSystem(String name, ZooKeeper zoo) {
+    public boolean registerSystem(String name) {
         String path = registry + name;
         boolean registerCode = true;
         //check register exists
@@ -183,7 +179,7 @@ public class ZKManager implements Watcher{
     }
 
 
-    public Stat getZNodeStatsReg(String name, ZooKeeper zoo) throws KeeperException,
+    public Stat getZNodeStatsReg(String name) throws KeeperException,
                 InterruptedException {
             String path = registry + name;
             stat = zoo.exists(path, true);
@@ -193,7 +189,7 @@ public class ZKManager implements Watcher{
     }
 
 
-    public void SetWatchers(ZooKeeper zoo){
+    public void SetWatchers(){
         try {
             zoo.getChildren("/System/Request/Enroll", this);
         } catch (KeeperException e) {

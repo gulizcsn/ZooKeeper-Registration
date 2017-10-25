@@ -6,6 +6,8 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import java.io.IOException;
+
 public class ZKWriter {
     private static Stat stat;
     private static ZooKeeper zoo;
@@ -13,13 +15,18 @@ public class ZKWriter {
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
 
+    public void ZKManager() throws KeeperException, InterruptedException, IOException {
+        this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
 
 
 
-    public void create(String name, ZooKeeper zoo) throws KeeperException, InterruptedException {
+    }
+
+
+    public void create(String name) throws KeeperException, InterruptedException {
         String path = enroll + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-        stat = this.getZNodeStatsReg(name, zoo);
+        stat = this.getZNodeStatsReg(name);
 
         System.out.println(stat);
 
@@ -34,7 +41,7 @@ public class ZKWriter {
     }
 
 
-    public Stat getZNodeStatsReg(String name, ZooKeeper zoo) throws KeeperException,
+    public Stat getZNodeStatsReg(String name) throws KeeperException,
             InterruptedException {
         String path = registry + name;
         stat = zoo.exists(path, true);
@@ -44,10 +51,10 @@ public class ZKWriter {
     }
 
 
-    public void quit(String name, ZooKeeper zoo) throws KeeperException, InterruptedException {
+    public void quit(String name) throws KeeperException, InterruptedException {
         String path = quit + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-        stat = this.getZNodeStatsReg(name, zoo);
+        stat = this.getZNodeStatsReg(name);
         System.out.println(stat);
         if (stat != null) {
             System.out.println("User is in the system");
