@@ -7,6 +7,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ZKWriter {
     private static Stat stat;
@@ -15,14 +16,13 @@ public class ZKWriter {
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
 
+
     public void ZKWriter() throws KeeperException, InterruptedException, IOException {
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
 
 
-
-
-
     }
+
 
 
     public void create(String name) throws KeeperException, InterruptedException {
@@ -64,10 +64,10 @@ public class ZKWriter {
         System.out.println(stat);
         if (stat != null) {
             System.out.println("User is in the system");
-            System.out.println(stat);
+            //System.out.println(stat);
             //create the node who wants to quit the system
             zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
+//watcher triggered in quit
 
         } else {
             System.out.println("User can not be found in the system");

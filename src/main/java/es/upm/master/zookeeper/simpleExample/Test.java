@@ -28,8 +28,12 @@ public class Test {
 
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter();
-		zkw.create("Guliz");
-        zkw.quit("Belen");
+		//zkw.create("Ahmed");
+
+		zkw.quit("Ahmed");
+
+
+ //       zkw.quit("Guliz");
 
 
 
