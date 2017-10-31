@@ -28,17 +28,22 @@ public class Test {
 
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter();
-		//zkw.create("Ahmed");
 
+
+
+
+		zkw.create("Ahmed");
 		zkw.quit("Ahmed");
+		zkw.create("Ahmet");
+		zkw.create("Santi");
+		zkw.create("Guliz");
+		//zkw.quit("Ahmed");
+		//zkw.quit("Ahmet");
+
+        zkw.quit("Guliz1");
 
 
- //       zkw.quit("Guliz");
-
-
-
-
-
+		Thread.sleep(20000);
 
 	}
 

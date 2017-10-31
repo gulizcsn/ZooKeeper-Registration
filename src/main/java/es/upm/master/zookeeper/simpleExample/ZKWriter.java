@@ -27,11 +27,9 @@ public class ZKWriter {
 
     public void create(String name) throws KeeperException, InterruptedException {
         String path = enroll + name;
-        //String pathReg = registry + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
         System.out.println("ha entrado en crear");
 
-        //stat= zoo.exists(pathReg, true);
         stat = this.getZNodeStatsReg(name);
 
         if (stat != null) {
@@ -41,12 +39,14 @@ public class ZKWriter {
             System.out.println("this is the path" + path);
             //creates the first node called Bitch
             zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
         }
     }
 
 
     public Stat getZNodeStatsReg(String name) throws KeeperException,
             InterruptedException {
+
         String path = registry + name;
 
         stat = zoo.exists(path, true);
@@ -64,10 +64,9 @@ public class ZKWriter {
         System.out.println(stat);
         if (stat != null) {
             System.out.println("User is in the system");
-            //System.out.println(stat);
             //create the node who wants to quit the system
             zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-//watcher triggered in quit
+
 
         } else {
             System.out.println("User can not be found in the system");

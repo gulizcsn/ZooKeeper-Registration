@@ -34,16 +34,21 @@ public class ZKManager implements Watcher{
     private String quit = "/System/Request/Quit/";
 
     public void ZKManager() throws KeeperException, InterruptedException, IOException {
-        this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
+
         regList= new ArrayList<String>();
         //if zoo.getchildren not null.. then this
         String auth = "user:pwd";
-        zoo.addAuthInfo("digest",auth.getBytes());
-        regList= zoo.getChildren("/System/Registry",false);
-        SetWatchers();
-        //destroyTree("/System");
-        //constructTree();
 
+        this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
+        this.zoo.addAuthInfo("digest",auth.getBytes());
+
+        destroyTree("/System");
+        constructTree();
+
+
+        regList= zoo.getChildren("/System/Registry",false);
+
+        SetWatchers();
     }
 
     public void constructTree() throws KeeperException, InterruptedException {
@@ -108,6 +113,7 @@ public class ZKManager implements Watcher{
                 //new children appeared- lets check the REGISTRATIONLIST
                 System.out.println("watcher was triggered in enroll");
 
+
                 try {
                     List<String> childrenEn = zoo.getChildren("/System/Request/Enroll", false);
                     for (String item : childrenEn) {
@@ -116,7 +122,7 @@ public class ZKManager implements Watcher{
 
 
                             if (!regList.contains(item)) {
-                                System.out.println("Ahmed is not in the list");
+
                                 register(item);
 
                             }else{}
@@ -140,6 +146,12 @@ public class ZKManager implements Watcher{
 
                             zoo.delete(pathDelQuit, -1);
                             zoo.delete(pathDelReg, -1);
+                            regList.remove(item);
+
+                            for(String item1 : regList)
+                            {
+                                System.out.println("hellooooo" +item1);
+                            }
                         }
                     }
                 } catch (KeeperException e) {
@@ -163,7 +175,7 @@ public class ZKManager implements Watcher{
      private void register(String name)throws KeeperException,
             InterruptedException {
         String path = registry + name;
-
+        String delpathenroll = enroll + name;
         Stat stat = zoo.exists(path, true);
         if (stat == null) {
             System.out.println("User is not in Register- lets create it");
@@ -171,18 +183,21 @@ public class ZKManager implements Watcher{
             if(registerStatus) {
                 System.out.println("Registration is successful");
                 //delete name from enroll node.
-                String delpathenroll = enroll + name;
+
                 zoo.delete(delpathenroll, -1);
                 //add name to regList
                 regList.add(name);
-                for (String item : regList) {
-                    System.out.println("lista" + item);
+                for(String item1 : regList)
+                {
+                    System.out.println("registereddd" +item1);
                 }
+
             }else{
                 System.out.println("Registration is not successful");
             }
         }
 
+        SetWatchers();
     }
 
 
