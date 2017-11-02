@@ -1,15 +1,13 @@
 package es.upm.master.zookeeper.simpleExample;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-        import org.apache.zookeeper.CreateMode;
-        import org.apache.zookeeper.KeeperException;
-        import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
@@ -44,7 +42,6 @@ public class ZKManager implements Watcher{
 
         destroyTree("/System");
         constructTree();
-
 
         regList= zoo.getChildren("/System/Registry",false);
 
@@ -91,11 +88,8 @@ public class ZKManager implements Watcher{
     }
 
 
-
     @Override
     public void process(WatchedEvent event) {
-
-        System.out.println("watcher triggered");
 
         if (event.getType() == EventType.NodeCreated) {
             System.out.println(event.getPath() + " created");
@@ -111,20 +105,14 @@ public class ZKManager implements Watcher{
             //if it comes from /enroll- run ZKManager registry
             if (event.getPath().contains("Enroll")) {
                 //new children appeared- lets check the REGISTRATIONLIST
-                System.out.println("watcher was triggered in enroll");
-
-
                 try {
                     List<String> childrenEn = zoo.getChildren("/System/Request/Enroll", false);
                     for (String item : childrenEn) {
                         //System.out.println(item);
-                        //System.out.println("the list"+regList);
+                        System.out.println("the list under register is :"+regList);
 
-
-                            if (!regList.contains(item)) {
-
+                            if (!regList.contains(item) || regList==null) {
                                 register(item);
-
                             }else{}
                     }
                 } catch (KeeperException e) {
@@ -134,26 +122,11 @@ public class ZKManager implements Watcher{
                 }
 
             } else if (event.getPath().contains("Quit")) {
-                System.out.println("watcher triggered inside quit");
+                System.out.println("W triggered inside quit");
+                //to avoid complexity, we will create function quit outside the process
+                String pathquit= event.getPath();
                 try {
-                    List<String> childrenEn = zoo.getChildren("/System/Request/Quit", false);
-                    for (String item : childrenEn) {
-
-                        if (regList.contains(item)) {
-                            System.out.println("list checked , going to delete from enroll and reg via watcher");
-                            String pathDelQuit= quit + item;
-                            String pathDelReg= registry + item;
-
-                            zoo.delete(pathDelQuit, -1);
-                            zoo.delete(pathDelReg, -1);
-                            regList.remove(item);
-
-                            for(String item1 : regList)
-                            {
-                                System.out.println("hellooooo" +item1);
-                            }
-                        }
-                    }
+                    quit(pathquit);
                 } catch (KeeperException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -164,60 +137,59 @@ public class ZKManager implements Watcher{
                 System.out.println(event.getPath() + " what is this??");
             }
 
-            //SetWatchers();
-
         }
 
         SetWatchers();
     }
 
 
-     private void register(String name)throws KeeperException,
-            InterruptedException {
+     private void register(String name)throws KeeperException, InterruptedException {
+
+        //we also need to check if item inside enroll has code NEW_CREATION.
         String path = registry + name;
-        String delpathenroll = enroll + name;
+        String pathenroll = enroll + name;
         Stat stat = zoo.exists(path, true);
-        if (stat == null) {
-            System.out.println("User is not in Register- lets create it");
+        byte[] controlCode= zoo.getData(pathenroll, null, null); //we get
+
+         if (stat == null && Arrays.equals(Test.Control.NEW, controlCode)) {
+            System.out.println("Checking before registring, User in enroll has code NEW, so we create new node in registry");
             boolean registerStatus = registerSystem(name);
             if(registerStatus) {
                 System.out.println("Registration is successful");
-                //delete name from enroll node.
-
-                zoo.delete(delpathenroll, -1);
+                zoo.setData(pathenroll, Test.Control.SUCCES, -1); //change enroll code to SUCCES
                 //add name to regList
                 regList.add(name);
-                for(String item1 : regList)
-                {
-                    System.out.println("registereddd" +item1);
-                }
+              //  for(String item1 : regList) { }
 
             }else{
                 System.out.println("Registration is not successful");
+
             }
         }
-
         SetWatchers();
     }
 
 
-    public boolean registerSystem(String name) {
+    public boolean registerSystem(String name) throws KeeperException, InterruptedException {
         String path = registry + name;
+        String pathenroll= enroll+ name;
         boolean registerCode = false;
         //check register exists
 
         try {
-
-            zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zoo.create(path, "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT); //Creo nodo en registry con codigo 0, ya se cambiara
             registerCode= true;
-        } catch (KeeperException e) {
+        } catch (KeeperException.NodeExistsException e) {
             registerCode=false;
+            //node existi in enrolment, changing status
+            zoo.setData(pathenroll, Test.Control.EXISTS, -1); //put code node already created 2
             e.printStackTrace();
         } catch (InterruptedException e) {
             registerCode=false;
+            zoo.setData(pathenroll, Test.Control.FAILED, -1); //put code failed 0
+
             e.printStackTrace();
         }
-
         return registerCode;
     }
 
@@ -227,8 +199,42 @@ public class ZKManager implements Watcher{
             String path = registry + name;
             stat = zoo.exists(path, true);
             return stat;
+    }
 
+    private void quit(String path)throws KeeperException,
+            InterruptedException {
+        try {
+            List<String> childrenEn = zoo.getChildren("/System/Request/Quit", false);
+            for (String item : childrenEn) {
 
+                if (regList.contains(item)) {
+                    String pathDelQuit= quit + item;
+                    String pathDelReg= registry + item;
+                    try {
+                        zoo.delete(pathDelReg, -1);
+                        regList.remove(item);
+                        System.out.println("user succes deleted under Registry");
+
+                    } catch (KeeperException.NoNodeException e1) {
+                        //If user was not registered M: set /request/quit/w_id:2
+                        zoo.setData(pathDelQuit, Test.Control.EXISTS, -1);
+                        return;
+                    } catch (Exception e1) {
+                        zoo.setData(pathDelQuit, Test.Control.FAILED, -1);
+                        return;
+                    }
+
+                    zoo.setData(pathDelQuit, Test.Control.SUCCES, -1);
+                    //NOW that the data inside /request/quit/item has changed, we will trigger the watcher and do..
+                    // zoo.delete(pathDelQuit, -1);
+
+                }
+            }
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -248,8 +254,6 @@ public class ZKManager implements Watcher{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 
     public List<String> getList() {

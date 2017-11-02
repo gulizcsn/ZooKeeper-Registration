@@ -15,32 +15,31 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 public class Test {
 
+	interface Control {
+		byte[] NEW = "-1".getBytes();
+		byte[] FAILED = "0".getBytes();
+		byte[] SUCCES = "1".getBytes();
+		byte[] EXISTS = "2".getBytes();
+	}
 
 	public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
 
-
-
-
 		ZKManager manager = new ZKManager();
-        //menu for deciding what to do inside class manager- we should move it
 		manager.ZKManager();
-
 
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter();
 
-
-
-
 		zkw.create("Ahmed");
-		zkw.quit("Ahmed");
-		zkw.create("Ahmet");
-		zkw.create("Santi");
-		zkw.create("Guliz");
 		//zkw.quit("Ahmed");
-		//zkw.quit("Ahmet");
+		zkw.create("Belen");
+		zkw.create("Belen");
+		zkw.create("Cris");
+		zkw.create("Mahmud");
+		//zkw.quit("Ahmed");
+		zkw.quit("Ahmed");
 
-        zkw.quit("Guliz1");
+       // zkw.quit("Guliz1");
 
 
 		Thread.sleep(20000);
