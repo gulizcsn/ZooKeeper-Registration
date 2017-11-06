@@ -28,8 +28,11 @@ public class ZKManager implements Watcher{
     private static ZooKeeper zoo;
     public List<String> regList;
     private String enroll = "/System/Request/Enroll/";
+    private String online = "/System/Online/";
+    private String queue = "/System/Queue/";
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
+    private String backup ="/System/Backup/";
 
     public void ZKManager() throws KeeperException, InterruptedException, IOException {
 
@@ -40,20 +43,35 @@ public class ZKManager implements Watcher{
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
         this.zoo.addAuthInfo("digest",auth.getBytes());
 
-        destroyTree("/System");
+
+        destroyTree("/System/Request");
+        destroyTree("/System/Online");
+        destroyTree("/System/Queue");
+        destroyTree("/System"); //why destroy System?
+
         constructTree();
 
         regList= zoo.getChildren("/System/Registry",false);
+        System.out.println(regList);
+        this.SetWatchers();
 
-        SetWatchers();
+
     }
 
     public void constructTree() throws KeeperException, InterruptedException {
 
         String auth = "user:pwd";
         zoo.addAuthInfo("digest",auth.getBytes());
-        //create protected node
-        zoo.create("/System", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+        try {
+            //create protected node
+            zoo.create("/System", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zoo.create("/System/Registry", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+            zoo.create("/System/Backup", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+        }
+        catch (KeeperException.NodeExistsException e) {      }
+
+
         //create znode sequential
         zoo.create("/System/Request", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         //create znode sequential*/
@@ -61,13 +79,11 @@ public class ZKManager implements Watcher{
         //create znode sequential
         zoo.create("/System/Request/Quit", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         //create znode sequential
-        zoo.create("/System/Registry", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
-        //create znode sequential
+
         zoo.create("/System/Online", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         //create znode sequential
         zoo.create("/System/Queue", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        //create znode sequential
-        zoo.create("/System/Backup", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+
 
         SetWatchers();
     }
@@ -138,6 +154,21 @@ public class ZKManager implements Watcher{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+            }else if (event.getPath().contains("Online")) {
+                System.out.println("New node inside online");
+                String onlinepath= event.getPath();
+
+                try {
+                    onlineCheck(onlinepath);
+                } catch (KeeperException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (event.getPath().contains("Queue")) {
+                System.out.println("New node inside QUEUE");
 
             } else {
                 System.out.println(event.getPath() + " what is this??");
@@ -242,7 +273,58 @@ public class ZKManager implements Watcher{
             e.printStackTrace();
         }
     }
+    private void onlineCheck(String path)throws KeeperException, InterruptedException {
 
+            //Shall we see if user is already in Queu? Yes we need to check if it is not already online.
+            //done it in WRITER
+            //Get children from node.
+            List<String> chilOn = zoo.getChildren(path, false);
+            for (String item : chilOn) {
+                boolean bol=false;
+
+                if (regList.contains(item)) {
+                    String pathQue= queue + item;
+                    //the user is in reglist or online already, so lets make him go online.
+
+                    try {
+                        zoo.create(pathQue , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        bol=true;
+
+
+                    } catch (KeeperException.NodeExistsException e1) {
+                        System.out.println("User has been online before, the node is still inside online");
+                    } catch (Exception e1) { }
+
+                    if(bol){
+                        System.out.println("going to get backups");
+                        this.onlineManagement(item);
+                    }
+
+
+                }
+            }
+
+    }
+
+    public void onlineManagement(String name)throws KeeperException, InterruptedException {
+        // Start recovery from /backup/w_id
+        //this online Users management is created inside node Queue. we will watch children under backup and copy them to queue
+        Stat stat= zoo.exists(backup+name, false);
+        if(stat!=null){
+            System.out.println("there are backuped messages ");
+
+            List<String> backMess = zoo.getChildren(backup+name, false);
+            //if list not empty. we get all the messages and move them to Queue
+            for (String item : backMess) {
+                String copyMess = queue + name + item;
+                String delMess = backup + name + item;
+                zoo.create(copyMess, "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zoo.delete(delMess, -1);
+            }
+        }else {
+            System.out.println("No backup messages to copy");
+        }
+    }
 
     public void SetWatchers(){
         try {
@@ -260,6 +342,21 @@ public class ZKManager implements Watcher{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        try {
+            zoo.getChildren("/System/Online", this);
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            zoo.getChildren("/System/Queue", this);
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public List<String> getList() {

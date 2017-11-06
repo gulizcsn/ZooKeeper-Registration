@@ -14,6 +14,8 @@ public class ZKWriter implements Watcher{
     private String enroll = "/System/Request/Enroll/";
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
+    private String online = "/System/Online/";
+    private String queue = "/System/Queue/";
 
 
     public void ZKWriter() throws KeeperException, InterruptedException, IOException {
@@ -75,6 +77,23 @@ public class ZKWriter implements Watcher{
             System.out.println("User can not be found in the system under path" + path);
         }
     }
+
+    public void goOnline(String name) throws KeeperException, InterruptedException {
+        String path= online + name;
+        //check if user is already online
+        Stat stat = zoo.exists(path, true);
+        if (stat!=null){
+            System.out.println("user already online, not connecting twice");
+
+        }else{
+            //create ephemeral node
+            System.out.println("USER NOT ONLINE !! CONNECTING");
+            zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        }
+
+
+    }
+
 
 
     //check the watched event data, if 1 or 2 => successful registered.

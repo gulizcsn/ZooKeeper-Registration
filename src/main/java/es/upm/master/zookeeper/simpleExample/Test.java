@@ -30,16 +30,19 @@ public class Test {
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter();
 
-		zkw.create("Ahmed");
 		//zkw.quit("Ahmed");
-		zkw.create("Belen");
-		zkw.create("Belen");
+		//zkw.create("Mahmud");
+
+
+		//*****************************************************************************************************//
+		/*									HOW TO RUN THE ONLINE PART											*/
+		//******************************************************************************************************//
+		/*1ST RUN-  uncomment THE NEXT 2 lines, in zkManager uncomment the destroy and construct the tree*/
 		zkw.create("Cris");
-		zkw.create("Mahmud");
-		//zkw.quit("Ahmed");
 		zkw.quit("Ahmed");
 
-       // zkw.quit("Guliz1");
+ 		/*2nd RUN- comment previous lines, also comment the destroy tree and construct tree, and uncomment the next line*/
+ 		//zkw.goOnline("Cris");
 
 
 		Thread.sleep(20000);
