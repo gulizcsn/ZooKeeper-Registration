@@ -24,7 +24,7 @@ import org.apache.zookeeper.ZKUtil;
 
 public class ZKManager implements Watcher{
 
-    private static Stat stat;
+    private  Stat stat;
     private static ZooKeeper zoo;
     public List<String> regList;
     private String enroll = "/System/Request/Enroll/";
@@ -43,13 +43,14 @@ public class ZKManager implements Watcher{
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
         this.zoo.addAuthInfo("digest",auth.getBytes());
 
+//we dont need these lines, right?
+        //destroyTree("/System/Request");
+        //destroyTree("/System/Online");
+        //destroyTree("/System/Queue");
 
-        destroyTree("/System/Request");
-        destroyTree("/System/Online");
-        destroyTree("/System/Queue");
-        destroyTree("/System"); //why destroy System?
 
-        constructTree();
+        //destroyTree("/System"); //why destroy System?
+        //constructTree();
 
         regList= zoo.getChildren("/System/Registry",false);
         System.out.println(regList);
@@ -123,7 +124,6 @@ public class ZKManager implements Watcher{
             System.out.println(event.getPath() + " changed");
 
         } else if (event.getType() == EventType.NodeChildrenChanged) {
-            System.out.println(event.getPath() + " children created");
             //if it comes from /enroll- run ZKManager registry
             if (event.getPath().contains("Enroll")) {
                 //new children appeared- lets check the REGISTRATIONLIST
@@ -134,8 +134,11 @@ public class ZKManager implements Watcher{
                         System.out.println("the list under register is :"+regList);
 
                             if (!regList.contains(item) || regList==null) {
+                                System.out.println("node created YES processed"+ item);
                                 register(item);
-                            }else{}
+                            }else{
+                                System.out.println("node created not processed"+ item);
+                            }
                     }
                 } catch (KeeperException e) {
                     e.printStackTrace();
@@ -189,17 +192,17 @@ public class ZKManager implements Watcher{
         byte[] controlCode= zoo.getData(pathenroll, null, null); //we get
 
          if (stat == null && Arrays.equals(Test.Control.NEW, controlCode)) {
-            System.out.println("Checking before registring, User in enroll has code NEW, so we create new node in registry");
+            System.out.println("Node under enrool has code NEW" + name);
             boolean registerStatus = registerSystem(name);
             if(registerStatus) {
-                System.out.println("Registration is successful");
+                System.out.println("Registration is successful for" + name);
                 zoo.setData(pathenroll, Test.Control.SUCCES, -1); //change enroll code to SUCCES
                 //add name to regList
                 regList.add(name);
               //  for(String item1 : regList) { }
 
             }else{
-                System.out.println("Registration is not successful");
+                System.out.println("Registration is not successful for " + name);
 
             }
         }

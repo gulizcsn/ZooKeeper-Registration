@@ -28,24 +28,25 @@ public class Test {
 		manager.ZKManager();
 
 		ZKWriter zkw = new ZKWriter();
-		zkw.ZKWriter();
-
-		//zkw.quit("Ahmed");
-		//zkw.create("Mahmud");
+		zkw.ZKWriter("Cris");
+		//zkw.create();
 
 
-		//*****************************************************************************************************//
-		/*									HOW TO RUN THE ONLINE PART											*/
-		//******************************************************************************************************//
-		/*1ST RUN-  uncomment THE NEXT 2 lines, in zkManager uncomment the destroy and construct the tree*/
-		zkw.create("Cris");
-		zkw.quit("Ahmed");
-
- 		/*2nd RUN- comment previous lines, also comment the destroy tree and construct tree, and uncomment the next line*/
- 		//zkw.goOnline("Cris");
+		ZKWriter zkw1 = new ZKWriter();
+		zkw1.ZKWriter("Belen");
+		//zkw1.create();
 
 
-		Thread.sleep(20000);
+		zkw.goOnline();
+		zkw1.goOnline();
+
+ 		zkw.send("Belen", "Hola");
+
+
+
+
+		for(int i = 0; i < 10000; i++)
+			Thread.sleep(200);
 
 	}
 
