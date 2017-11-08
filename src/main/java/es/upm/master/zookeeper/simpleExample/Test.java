@@ -30,17 +30,22 @@ public class Test {
 		ZKWriter zkw = new ZKWriter();
 		zkw.ZKWriter("Cris");
 		//zkw.create();
-
-
-		ZKWriter zkw1 = new ZKWriter();
-		zkw1.ZKWriter("Belen");
-		//zkw1.create();
-
-
+		//for(int i = 0; i < 1000; i++){}
 		zkw.goOnline();
-		zkw1.goOnline();
+		for(int i = 0; i < 1000; i++){}
+		zkw.goOffline();
 
- 		zkw.send("Belen", "Hola");
+
+
+		//ZKWriter zkw1 = new ZKWriter();
+		//zkw1.ZKWriter("Belen");
+		//zkw1.create();
+		//zkw1.goOnline();
+
+
+
+ 		//zkw.send("Belen", "Hola");
+
 
 
 

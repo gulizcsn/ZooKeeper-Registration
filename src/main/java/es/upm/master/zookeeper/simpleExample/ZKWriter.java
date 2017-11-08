@@ -76,16 +76,35 @@ public class ZKWriter implements Watcher{
     public void goOnline() throws KeeperException, InterruptedException {
         String path= online + name;
         //check if user is already online
-        Stat stat = zoo.exists(path, true);
-        if (stat!=null){
-            System.out.println("user already online, not connecting twice");
+        if (zoo.exists(path,false)!=null){
+            System.out.println("user"+name+" already online, not connecting twice");
 
         }else{
             //create ephemeral node
-            System.out.println("USER NOT ONLINE !! CONNECTING");
-            zoo.create(path, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            System.out.println("USER "+name+" NOT ONLINE >> CONNECTING");
+            zoo.create(path, Test.Control.NEW, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
     }
+
+    public void goOffline() throws KeeperException, InterruptedException {
+        String path= online + name;
+        //check if user is already online
+        if (zoo.exists(path, false)!=null){
+
+            System.out.println("user "+name+"disconnecting from online");
+            //create the node who wants to quit the system
+            zoo.setData(path, Test.Control.EXISTS, -1);
+            //zoo.delete(path, -1);
+            //Setting watcher if state  of Control changes
+
+            // Thread.sleep(100);
+
+        }else {
+            //create ephemeral node
+            System.out.println("USER NOT ONLINE !! SO CAN'T GO OFFLINE");
+        }
+    }
+
 
     public void send(String receiver, String msg) throws KeeperException, InterruptedException {
         //first check if sender is online...

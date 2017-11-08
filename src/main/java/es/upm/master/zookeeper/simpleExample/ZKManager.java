@@ -12,6 +12,8 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import java.util.Arrays;
+
 import org.apache.zookeeper.ZooKeeper;
 import java.util.List;
 
@@ -25,7 +27,7 @@ import org.apache.zookeeper.ZKUtil;
 public class ZKManager implements Watcher{
 
     private  Stat stat;
-    private static ZooKeeper zoo;
+    private  ZooKeeper zoo;
     public List<String> regList;
     private String enroll = "/System/Request/Enroll/";
     private String online = "/System/Online/";
@@ -43,14 +45,13 @@ public class ZKManager implements Watcher{
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
         this.zoo.addAuthInfo("digest",auth.getBytes());
 
-//we dont need these lines, right?
-        //destroyTree("/System/Request");
-        //destroyTree("/System/Online");
-        //destroyTree("/System/Queue");
+        destroyTree("/System/Request");
+        destroyTree("/System/Online");
+        destroyTree("/System/Queue");
 
 
         //destroyTree("/System"); //why destroy System?
-        //constructTree();
+        constructTree();
 
         regList= zoo.getChildren("/System/Registry",false);
         System.out.println(regList);
@@ -120,10 +121,26 @@ public class ZKManager implements Watcher{
 
         } else if (event.getType() == EventType.NodeDeleted) {
             System.out.println(event.getPath() + " deleted");
-        } else if (event.getType() == EventType.NodeDataChanged) {
-            System.out.println(event.getPath() + " changed");
 
-        } else if (event.getType() == EventType.NodeChildrenChanged) {
+        } else if (event.getType() == EventType.NodeDataChanged) {
+            System.out.println(event.getPath()+ "changed");
+
+            if (event.getPath().contains("Online")) {
+                //we are disconnecting someone.
+                String pathOff= event.getPath();
+                System.out.println("user " +pathOff+" wants to go offline");
+                try {
+                    offlineCheck(pathOff);
+                } catch (KeeperException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+
+            } else if (event.getType() == EventType.NodeChildrenChanged) {
             //if it comes from /enroll- run ZKManager registry
             if (event.getPath().contains("Enroll")) {
                 //new children appeared- lets check the REGISTRATIONLIST
@@ -276,10 +293,43 @@ public class ZKManager implements Watcher{
             e.printStackTrace();
         }
     }
-    private void onlineCheck(String path)throws KeeperException, InterruptedException {
+    private void offlineCheck(String path)throws KeeperException, InterruptedException {
+        //1st check if code is 2
+        byte[] controlCode;
+        controlCode = zoo.getData(path, null, null);
+        String name= path.replace("/System/Online/", "");
 
+        if (Arrays.equals(Test.Control.EXISTS, controlCode)){
+            //we delete the node and get it from backup-queue
+            System.out.println("USER"+ name + "is about to go offline");
+
+            if(zoo.exists(queue+name, false)!=null) {
+                List <String> toback = zoo.getChildren(queue + name, false);
+                if (!toback.isEmpty()) {
+                    System.out.println("there are unread messages ");
+                    System.out.println(toback);
+                    //if list not empty. we get all the messages and move them to Queue
+
+                    for (String msg : toback) {
+                        //CHECK HOW MESSAGES ARE CREATED ONCE COPIED- CREATE AS EPHEMERAL??
+                        String copyMess = backup + name + "/" + msg; //node were messages will go
+                        String delMess = queue + name + "/" + msg;
+                        zoo.create(copyMess, "znodes".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zoo.delete(delMess, -1);
+                    }
+                } else {
+                    System.out.println("No backup messages to copy");
+                }
+            }
+
+            zoo.delete(path, -1);
+            zoo.delete(queue+name, -1);
+
+        }
+
+    }
+    private void onlineCheck(String path)throws KeeperException, InterruptedException {
             //Shall we see if user is already in Queu? Yes we need to check if it is not already online.
-            //done it in WRITER
             //Get children from node.
             List<String> chilOn = zoo.getChildren(path, false);
             for (String item : chilOn) {
@@ -287,23 +337,30 @@ public class ZKManager implements Watcher{
 
                 if (regList.contains(item)) {
                     String pathQue= queue + item;
+
                     //the user is in reglist or online already, so lets make him go online.
 
                     try {
                         zoo.create(pathQue , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        //watcher en data changed
+                        System.out.println("Adding"+ item+" to Queue");
+
                         bol=true;
 
-
                     } catch (KeeperException.NodeExistsException e1) {
-                        System.out.println("User has been online before, the node is still inside online");
-                    } catch (Exception e1) { }
+                        System.out.println("User"+ item+" has been in QUEUE  before");
+                        bol=false;
+                    } catch (Exception e1) {bol=false; }
+
+                    zoo.exists(online+item , (Watcher) this);
+                    System.out.println("watcher putted under "+ item);
+
+
 
                     if(bol){
                         System.out.println("going to get backups");
                         this.onlineManagement(item);
                     }
-
-
                 }
             }
 
