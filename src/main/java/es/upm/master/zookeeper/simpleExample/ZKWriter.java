@@ -4,11 +4,12 @@ import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.Collections;
 
 public class ZKWriter implements Watcher{
     private Stat stat;
@@ -113,7 +114,7 @@ public class ZKWriter implements Watcher{
     }
 
 
-    public void send(String receiver, String msg) throws KeeperException, InterruptedException {
+    public void send(String receiver, String msg) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         //first check if sender is online...
         stat= zoo.exists(queue+name, false);
         Stat statReceiver= zoo.exists(queue+name, false);
@@ -125,7 +126,19 @@ public class ZKWriter implements Watcher{
                 //receiver is onloine in queue- so we put under queue+receiver
                 System.out.println("Receiver" + receiver+ " is ONLINE");
                 //zoo.create(queue + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                zoo.create(queue + receiver + "/" + msg, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+                zoo.create(queue + receiver + "/" + name, msg.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+                //MESSAGES STRUCTURE: Queue/Receiver/Sender000000X and inside data is the message in bytes
+                List<String> messages=zoo.getChildren(queue+receiver, false);
+                Collections.sort(messages);
+
+                for (String receivedm : messages) {
+                    byte[] message=zoo.getData(queue + receiver + "/" + receivedm, null, null);
+                    //convert byte to string
+                    String strmsg = new String(message, "UTF-8");
+                    System.out.println("THis is the node:  " + receivedm +" and the message inside: "+ strmsg);
+                    //String senderRetrieved=receivedm.substring(0, receivedm.length() - 10);
+                }
+
             }else{
                 //user is not online, we add it to backup so later he will be able to read them
                 System.out.println("Receiver" + receiver+ " is OFFLINE");
@@ -229,6 +242,7 @@ public class ZKWriter implements Watcher{
         connectionLatch.await(10, TimeUnit.SECONDS);
         return zoo;
     }
+
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         ZKWriter zkw = new ZKWriter();
         zkw.ZKWriter("Cris");
@@ -238,14 +252,18 @@ public class ZKWriter implements Watcher{
 
 
         ZKWriter zkw1 = new ZKWriter();
-        zkw1.ZKWriter("Guliz");
+        zkw1.ZKWriter("BELUSMOR");
         zkw1.create();
         Thread.sleep(1000);
         zkw1.goOnline();
-
         Thread.sleep(1000);
-        zkw1.zooDisconnect();
-        //zkw1.goOffline();
+
+        zkw1.send("Cris", "PERRACA");
+        //zkw1.send("Cris", "bebegim");
+
+        Thread.sleep(50000);
+        //zkw.zooDisconnect();
+        zkw.goOffline();
 
         Thread.sleep(50000);
     }

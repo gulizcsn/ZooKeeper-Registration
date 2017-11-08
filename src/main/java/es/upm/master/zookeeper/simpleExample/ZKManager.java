@@ -12,6 +12,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import java.util.Collections;
 import java.util.Arrays;
 
 import org.apache.zookeeper.ZooKeeper;
@@ -313,17 +314,29 @@ public class ZKManager implements Watcher{
         System.out.println("USER"+ name + "is about to go offline");
 
         if(zoo.exists(queue+name, false)!=null) {
+
             List <String> toback = zoo.getChildren(queue + name, false);
-            if (!toback.isEmpty()) {
+
+            if (!toback.isEmpty()) { // not empty, there are messages to read
+
+                Collections.sort(toback); //messages sorted in order
                 System.out.println("there are unread messages ");
                 System.out.println(toback);
-                //if list not empty. we get all the messages and move them to Queue
 
-                for (String msg : toback) {
-                    //CHECK HOW MESSAGES ARE CREATED ONCE COPIED- CREATE AS EPHEMERAL??
-                    String copyMess = backup + name + "/" + msg; //node were messages will go
-                    String delMess = queue + name + "/" + msg;
-                    zoo.create(copyMess, "znodes".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                for (String item : toback) {
+                    //we will get thenode, get only the sender, and create sequentially in queue
+                    //we give priority to the messages coming from the backup node.
+
+                    String messageNodeF=item.substring(0, item.length() - 10);
+                    //messageNodeF has the name of sender+ content with getData
+                    byte[] message=zoo.getData(queue + name + "/" + item, null, null);
+
+                    String copyMess = backup + name + "/" + messageNodeF; //node were messages will go
+                    String delMess = queue + name + "/" + item;
+                    if(zoo.exists(backup + name,false)==null){
+                        zoo.create(backup + name , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);//1st create rute
+                    }
+                    zoo.create(copyMess, message, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);//add messages
                     zoo.delete(delMess, -1);
                 }
             } else {
@@ -351,9 +364,7 @@ public class ZKManager implements Watcher{
                 zoo.exists(online+item, this);
                 System.out.println("watcher putted under "+ item);
 
-
-                //the user is in reglist or online already, so lets make him go online.
-
+                //the user is in reglist, so lets make him go to wait for messages .
                 try {
                     zoo.create(pathQue , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                     //watcher en data changed
@@ -370,31 +381,52 @@ public class ZKManager implements Watcher{
 
                 if(bol){
                     System.out.println("going to get backups");
-                    this.onlineManagement(item);
+                    if(zoo.exists(backup+item, false)!=null){
+                        this.onlineManagement(item);
+                    }
+
                 }
             }
         }
 
     }
-
+        /* Start recovery from /backup/w_id
+        this online Users management is created inside node Queue. we will watch children under backup and copy them to queue
+        watcher trigered before inside online- so we create backup node, and get the messages from backup.
+        this NOde is /Backup/user/sendermessage*/
     public void onlineManagement(String name)throws KeeperException, InterruptedException {
-        // Start recovery from /backup/w_id
-        //this online Users management is created inside node Queue. we will watch children under backup and copy them to queue
-        Stat stat= zoo.exists(backup+name, false);
-        if(stat!=null){
+
+        List<String> backMess = zoo.getChildren(backup+name, false);
+
+        if(!backMess.isEmpty()){
             System.out.println("there are backuped messages ");
 
-            List<String> backMess = zoo.getChildren(backup+name, false);
             //if list not empty. we get all the messages and move them to Queue
+            //the list will be structured as /Sender0000000x
+            //we should get all childer, sort them, and put in queue
+
+            Collections.sort(backMess);
             for (String item : backMess) {
-                String copyMess = queue + name + item;
-                String delMess = backup + name + item;
-                zoo.create(copyMess, "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+                String messageNodeF=item.substring(0, item.length() - 10);
+                //messageNodeF has the name of sender+ content with getData
+                byte[] message=zoo.getData(backup + name + "/" + item, null, null);
+
+                String copyMess = queue + name + "/" + messageNodeF; //node were messages will go
+                String delMess = backup + name + "/" + item;
+
+                if(zoo.exists(queue + name,false)==null){
+                    zoo.create(queue + name , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);//1st create rute
+                }
+                zoo.create(copyMess, message, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);//add messages
                 zoo.delete(delMess, -1);
             }
+
         }else {
             System.out.println("No backup messages to copy");
         }
+        zoo.delete( backup+name, -1);
+
     }
 
     public void SetWatchers(){
@@ -463,7 +495,7 @@ public class ZKManager implements Watcher{
         manager.ZKManager();
 
 
-        for(int i = 0; i < 10000; i++)
+        for(int i = 0; i < 100000; i++)
             Thread.sleep(200);
 
     }
