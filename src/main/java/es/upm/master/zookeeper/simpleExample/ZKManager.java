@@ -44,13 +44,9 @@ public class ZKManager implements Watcher{
 
         this.zoo = Test.zooConnect();    // Connects to ZooKeeper service
         this.zoo.addAuthInfo("digest",auth.getBytes());
-
-        destroyTree("/System/Request");
-        destroyTree("/System/Online");
-        destroyTree("/System/Queue");
-
-
-        //destroyTree("/System"); //why destroy System?
+        //delete part of the tree
+        destroyTree();
+        //create tree structure
         constructTree();
 
         regList= zoo.getChildren("/System/Registry",false);
@@ -90,7 +86,15 @@ public class ZKManager implements Watcher{
         SetWatchers();
     }
 
-    public void destroyTree(String treePath) throws KeeperException, InterruptedException {
+    public void destroyTree() throws KeeperException, InterruptedException {
+        destroyTreeProcess("/System/Request");
+        destroyTreeProcess("/System/Online");
+        destroyTreeProcess("/System/Queue");
+    }
+
+
+
+    public void destroyTreeProcess(String treePath) throws KeeperException, InterruptedException {
         //addauth digest user:pwd ( in command line)
         String auth = "user:pwd";
         this.zoo.addAuthInfo("digest",auth.getBytes());
@@ -105,7 +109,7 @@ public class ZKManager implements Watcher{
 
             List<String> children = zoo.getChildren(treePath, false);
             for( String item:children) {
-                destroyTree(treePath + '/' + item);
+                destroyTreeProcess(treePath + '/' + item);
             }
             zoo.delete(treePath, -1);
         }
