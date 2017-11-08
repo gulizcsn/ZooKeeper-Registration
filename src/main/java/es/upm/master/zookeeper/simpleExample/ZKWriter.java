@@ -34,7 +34,10 @@ public class ZKWriter implements Watcher{
         this.name=user;
 
     }
+    public void zooDisconnect() throws InterruptedException {
 
+        zoo.close();
+    };
 
 
     public void create() throws KeeperException, InterruptedException {
@@ -241,8 +244,9 @@ public class ZKWriter implements Watcher{
         zkw1.goOnline();
 
         Thread.sleep(1000);
-        zkw1.goOffline();
+        zkw1.zooDisconnect();
+        //zkw1.goOffline();
 
-        Thread.sleep(10000);
+        Thread.sleep(50000);
     }
 }
