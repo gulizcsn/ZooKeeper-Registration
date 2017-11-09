@@ -150,14 +150,57 @@ public class ZKWriter implements Watcher{
         }
     }
 
-    public void read() throws KeeperException, InterruptedException {
+    public String read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
         /*A user will request to read his messages
         1ST- check if the user is online in Queue
         2ND- check if there are messages fro him
         3rd. get the messages, remove the
          */
 
-    }
+        String messageContent=null;
+        //first check if sender is online...
+        stat= zoo.exists(online+name, false);
+        Stat statQueue= zoo.exists(queue+name, false);
+        if (stat!=null) {
+            System.out.println("This guy is online and wants to read messages: " + name );
+            if(statQueue!=null) {
+                List<String> messages = zoo.getChildren(queue + name, null);
+                Collections.sort(messages);
+                if (messages.isEmpty()) {
+                    System.out.println("There is no message in queue.");
+                    return null;
+                }
+
+                for (String eachMessage : messages) {
+
+                   // sender = eachMessage.substring(0, eachMessage.length() - 10);
+                    byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
+                    //convert byte to string
+                    messageContent = new String(message, "UTF-8");
+                    // delete the message from the queue as soon as it is read
+                    zoo.delete(queue + name + "/" + eachMessage, -1);
+
+                }
+
+            }
+            else{
+                System.out.println("There is no queue for this user: " + name );
+                return null;
+            }
+
+        }
+        else{
+            System.out.println(name + " cannot read messages. Go online!");
+            return null;
+
+        }
+
+     //   System.out.println(messageContent);
+        return messageContent;
+
+
+
+        }
 
 
     //check the watched event data, if 1 or 2 => successful registered.
@@ -259,11 +302,14 @@ public class ZKWriter implements Watcher{
         Thread.sleep(1000);
 
         zkw1.send("Cris", "PERRACA");
-        //zkw1.send("Cris", "bebegim");
+        zkw1.send("Cris", "bebegim");
 
         Thread.sleep(50000);
         //zkw.zooDisconnect();
-        zkw.goOffline();
+        //zkw.goOffline();
+        Thread.sleep(50000);
+        String message = zkw.read();
+        System.out.println(message);
 
         Thread.sleep(50000);
     }

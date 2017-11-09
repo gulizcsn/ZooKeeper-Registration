@@ -110,7 +110,7 @@ public class ZKManager implements Watcher{
 
         // If node doesn't exist
         if(zoo.exists(treePath, false) == null) {
-            System.out.println("WARNING: Node doesn't exist. Unsuccesful attempt " + treePath);
+            System.out.println("WARNING: Node doesn't exist." + treePath);
             return;
         }
         else {
@@ -137,7 +137,7 @@ public class ZKManager implements Watcher{
             if (event.getPath().contains("Online")) {
                 //we are disconnecting someone.
                 String pathOff= event.getPath();
-                System.out.println("user " + pathOff+" went offline");
+                System.out.println("User: " + pathOff+ " try to be offline");
                 try {
                     offlineCheck(pathOff);
                 } catch (KeeperException e) {
@@ -178,7 +178,7 @@ public class ZKManager implements Watcher{
                 }
 
             } else if (event.getPath().contains("Quit")) {
-                System.out.println("W triggered inside quit");
+                System.out.println("Quit watcher triggered");
                 //to avoid complexity, we will create function quit outside the process
                 String pathquit= event.getPath();
                 try {
@@ -190,10 +190,8 @@ public class ZKManager implements Watcher{
                 }
 
             }else if (event.getPath().contains("Online")) {
-                System.out.println("wacther inside online");
+                System.out.println("Online watcher triggered");
                 String onlinepath= event.getPath();
-                System.out.println("this is the path"+ onlinepath);
-
 
                 try {
                     onlineCheck(onlinepath);
