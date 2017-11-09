@@ -18,7 +18,7 @@ public class ZKWriter implements Watcher{
     private String online = "/System/Online/";
     private String queue = "/System/Queue/";
     private String backup ="/System/Backup/";
-
+    private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
 
     interface Control {
@@ -148,13 +148,9 @@ public class ZKWriter implements Watcher{
         }
     }
 
-    public void read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        /*A user will request to read his messages
-        1ST- check if the user is online in Queue
-        2ND- check if there are messages fro him
-        3rd. get the messages, remove the
-         */
-        Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
+    public Set<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+
+        //Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
         //first check if sender is online...
         stat= zoo.exists(online+name, false);
         Stat statQueue= zoo.exists(queue+name, false);
@@ -166,7 +162,7 @@ public class ZKWriter implements Watcher{
 
                 if (messages.isEmpty()) {
                     System.out.println("There is no message in queue.");
-                    //return null;
+                    return null;
                 }
 
                 for (String eachMessage : messages) {
@@ -188,11 +184,11 @@ public class ZKWriter implements Watcher{
         }
         else{
             System.out.println(name + " cannot read messages. Go online!");
-           // return null;
+            return null;
         }
 
         System.out.println(Arrays.asList(sendermess));
-        //return ;
+        return sendermess.keySet();
         }
 
     private static <KEY, VALUE> void put(Map<KEY, List<VALUE>> map, KEY key, VALUE value) {
@@ -200,11 +196,36 @@ public class ZKWriter implements Watcher{
     }
 
 
-    private void read(String sender) throws KeeperException, InterruptedException {
+    private List<String> readTheMessage(String sender) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         //we should ask the reading part
 
+        List<String> messages = sendermess.get(sender);
+        List<String> allMessageContents = new ArrayList<String>();
+       // Collections.sort(messages);
+        System.out.println("heyoo" + sendermess.get(sender));
+        if (messages.isEmpty()) {
+            System.out.println("There is no message in queue.");
+            return null;
+        }
+        else {
+            for (String eachMessage : messages) {
 
+                byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
+                String messageContent = new String(message, "UTF-8");
+                allMessageContents.add(messageContent);
+
+                // delete the message from the queue as soon as it is read
+
+
+                //we will delete only when consuming one sender messages
+                zoo.delete(queue + name + "/" + eachMessage, -1);
+            }
+        }
+        //we need to delete sender when every message read from sender
+        return allMessageContents;
     }
+
+
 
 
     //check the watched event data, if 1 or 2 => successful registered.
@@ -297,6 +318,11 @@ public class ZKWriter implements Watcher{
         Thread.sleep(1000);
         zkw.goOnline();
 
+        ZKWriter zkw2 = new ZKWriter();
+        zkw2.ZKWriter("Guliz");
+        zkw2.create();
+        Thread.sleep(1000);
+        zkw2.goOnline();
 
         ZKWriter zkw1 = new ZKWriter();
         zkw1.ZKWriter("BELUSMOR");
@@ -307,12 +333,16 @@ public class ZKWriter implements Watcher{
 
         zkw1.send("Cris", "PERRACA");
         zkw1.send("Cris", "bebegim");
-
+        zkw2.send("Cris","hi Cris");
         //Thread.sleep(50000);
         //zkw.zooDisconnect();
         //zkw.goOffline();
         Thread.sleep(5000);
-        zkw.read();
+        Set<String> guliz= zkw.read();
+        System.out.println(guliz);
+        List<String> messagesof = zkw.readTheMessage("BELUSMOR");
+        System.out.println(messagesof);
+        //return null;
 
         Thread.sleep(50000);
     }
