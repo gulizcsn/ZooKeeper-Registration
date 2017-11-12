@@ -1,6 +1,8 @@
 package es.upm.master.zookeeper.simpleExample;
 
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -21,6 +23,7 @@ public class UserConsole {
     private JLabel labelMessage;
     private JButton buttonLogOut;
     private JButton buttonQuit;
+
 
     public UserConsole() {
 
@@ -126,8 +129,9 @@ public class UserConsole {
                     e1.printStackTrace();
                 }
 
+                final JFrame frame = new JFrame();
                 try {
-                    String message = zkw.read();
+                    JOptionPane.showMessageDialog(frame.getComponent(0),  zkw.read());
                 } catch (KeeperException e1) {
                     e1.printStackTrace();
                 } catch (InterruptedException e1) {
@@ -135,10 +139,6 @@ public class UserConsole {
                 } catch (UnsupportedEncodingException e1) {
                     e1.printStackTrace();
                 }
-
-                final JFrame frame = new JFrame();
-
-                JOptionPane.showMessageDialog(frame.getComponent(0), "Hello World");
             }
         });
 
@@ -217,12 +217,6 @@ public class UserConsole {
         frames.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frames.pack();
         frames.setVisible(true);
-
-        Thread.sleep(4000);
-        ZKWriter zkw = new ZKWriter();
-        zkw.ZKWriter("Cris");
-        String message = zkw.read();
-        JOptionPane.showMessageDialog(frames.getComponent(0), message);
 
     }
 

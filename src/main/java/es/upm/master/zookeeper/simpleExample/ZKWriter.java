@@ -304,10 +304,10 @@ public class ZKWriter implements Watcher{
         zkw1.send("Cris", "PERRACA");
         zkw1.send("Cris", "bebegim");
 
-        Thread.sleep(50000);
+        //Thread.sleep(50000);
         //zkw.zooDisconnect();
         //zkw.goOffline();
-        Thread.sleep(50000);
+        //Thread.sleep(50000);
         String message = zkw.read();
         System.out.println(message);
 
