@@ -18,7 +18,7 @@ public class ZKWriter implements Watcher{
     private String online = "/System/Online/";
     private String queue = "/System/Queue/";
     private String backup ="/System/Backup/";
-    private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
+   // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
 
     interface Control {
@@ -127,7 +127,14 @@ public class ZKWriter implements Watcher{
                 zoo.create(queue + receiver + "/" + name, msg.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
                 //MESSAGES STRUCTURE: Queue/Receiver/Sender000000X and inside data is the message in bytes
                 List<String> messages=zoo.getChildren(queue+receiver, false);
-                Collections.sort(messages);
+                Comparator<String> sortRule = new Comparator<String>() {
+                    @Override
+                    public int compare(String left, String right) {
+                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
+                    }
+                };
+
+                Collections.sort(messages, sortRule);
 
                 for (String receivedm : messages) {
                     byte[] message=zoo.getData(queue + receiver + "/" + receivedm, null, null);
@@ -148,9 +155,9 @@ public class ZKWriter implements Watcher{
         }
     }
 
-    public Map<String, List<String>> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+    public List<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
 
-        //Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
+        List<String> sendermess = new ArrayList<String>();
         //first check if sender is online...
         stat= zoo.exists(online+name, false);
         Stat statQueue= zoo.exists(queue+name, false);
@@ -165,14 +172,22 @@ public class ZKWriter implements Watcher{
                     return null;
                 }
 
-                Collections.sort(messages);
-              //  Collections.sort(messages, (left, right) -> left.split("(?<=\\D)(?=\\d)")[1] - right.split("(?<=\\D)(?=\\d)")[1]);
-                for (String eachMessage : messages) {
+                Comparator<String> sortRule = new Comparator<String>() {
+                    @Override
+                    public int compare(String left, String right) {
+                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
+                    }
+                };
+
+                Collections.sort(messages, sortRule);
+                  for (String eachMessage : messages) {
                     String sender = eachMessage.substring(0, eachMessage.length() - 10);
                     byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
-                    String messageContent = new String(message, "UTF-8");
+                    String messageMeans = new String(message, "UTF-8");
+                    System.out.println("THis is the node1:  " + eachMessage +" and the message inside");
+
                     // delete the message from the queue as soon as it is read
-                    put(sendermess, sender, messageContent);
+                    sendermess.add(sender + ": " + messageMeans);
 
                     //we will delete only when consuming one sender messages
                     zoo.delete(queue + name + "/" + eachMessage, -1);
