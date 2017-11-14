@@ -5,11 +5,9 @@ import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.Collections;
 
 public class ZKWriter implements Watcher{
     private Stat stat;
@@ -20,7 +18,7 @@ public class ZKWriter implements Watcher{
     private String online = "/System/Online/";
     private String queue = "/System/Queue/";
     private String backup ="/System/Backup/";
-
+    private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
 
     interface Control {
@@ -150,14 +148,9 @@ public class ZKWriter implements Watcher{
         }
     }
 
-    public String read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        /*A user will request to read his messages
-        1ST- check if the user is online in Queue
-        2ND- check if there are messages fro him
-        3rd. get the messages, remove the
-         */
+    public Map<String, List<String>> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
 
-        String messageContent=null;
+        //Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
         //first check if sender is online...
         stat= zoo.exists(online+name, false);
         Stat statQueue= zoo.exists(queue+name, false);
@@ -165,43 +158,44 @@ public class ZKWriter implements Watcher{
             System.out.println("This guy is online and wants to read messages: " + name );
             if(statQueue!=null) {
                 List<String> messages = zoo.getChildren(queue + name, null);
-                Collections.sort(messages);
+
+
                 if (messages.isEmpty()) {
                     System.out.println("There is no message in queue.");
                     return null;
                 }
 
+                Collections.sort(messages);
+              //  Collections.sort(messages, (left, right) -> left.split("(?<=\\D)(?=\\d)")[1] - right.split("(?<=\\D)(?=\\d)")[1]);
                 for (String eachMessage : messages) {
-
-                   // sender = eachMessage.substring(0, eachMessage.length() - 10);
+                    String sender = eachMessage.substring(0, eachMessage.length() - 10);
                     byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
-                    //convert byte to string
-                    messageContent = new String(message, "UTF-8");
+                    String messageContent = new String(message, "UTF-8");
                     // delete the message from the queue as soon as it is read
+                    put(sendermess, sender, messageContent);
+
+                    //we will delete only when consuming one sender messages
                     zoo.delete(queue + name + "/" + eachMessage, -1);
-
                 }
-
             }
             else{
                 System.out.println("There is no queue for this user: " + name );
-                return null;
+                //return null;
             }
 
         }
         else{
             System.out.println(name + " cannot read messages. Go online!");
             return null;
-
         }
 
-     //   System.out.println(messageContent);
-        return messageContent;
+        System.out.println(Arrays.asList(sendermess));
+        return sendermess;
+    }
 
-
-
-        }
-
+    private static <KEY, VALUE> void put(Map<KEY, List<VALUE>> map, KEY key, VALUE value) {
+        map.compute(key, (s, strings) -> strings == null ? new ArrayList<>() : strings).add(value);
+    }
 
     //check the watched event data, if 1 or 2 => successful registered.
     //remove from enoll
@@ -301,15 +295,25 @@ public class ZKWriter implements Watcher{
         zkw1.goOnline();
         Thread.sleep(1000);
 
+
+        ZKWriter zkw2 = new ZKWriter();
+        zkw2.ZKWriter("Ahmet");
+        zkw2.create();
+        Thread.sleep(1000);
+        zkw2.goOnline();
+
         zkw1.send("Cris", "PERRACA");
+        Thread.sleep(1000);
+        zkw2.send("Cris","Helloooo I'm Ahmet");
+        Thread.sleep(1000);
         zkw1.send("Cris", "bebegim");
 
-        //Thread.sleep(50000);
+        Thread.sleep(50000);
         //zkw.zooDisconnect();
         //zkw.goOffline();
         //Thread.sleep(50000);
-        String message = zkw.read();
-        System.out.println(message);
+        zkw.read();
+       // System.out.println(message);
 
         Thread.sleep(50000);
     }
