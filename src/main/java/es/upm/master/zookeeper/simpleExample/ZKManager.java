@@ -204,6 +204,7 @@ public class ZKManager implements Watcher{
             } else if (event.getPath().contains("Queue")) {
                 System.out.println("New node inside QUEUE");
 
+
             } else {
                 System.out.println(event.getPath() + " what is this??");
             }
@@ -317,7 +318,14 @@ public class ZKManager implements Watcher{
 
             if (!toback.isEmpty()) { // not empty, there are messages to read
 
-                Collections.sort(toback); //messages sorted in order
+                Comparator<String> sortRule = new Comparator<String>() {
+                    @Override
+                    public int compare(String left, String right) {
+                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
+                    }
+                };
+
+                Collections.sort(toback, sortRule);
                 System.out.println("there are unread messages ");
                 System.out.println(toback);
 
@@ -403,8 +411,14 @@ public class ZKManager implements Watcher{
             //the list will be structured as /Sender0000000x
             //we should get all childer, sort them, and put in queue
 
-            Collections.sort(backMess);
-            for (String item : backMess) {
+            Comparator<String> sortRule = new Comparator<String>() {
+                @Override
+                public int compare(String left, String right) {
+                    return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
+                }
+            };
+
+            Collections.sort(backMess, sortRule);            for (String item : backMess) {
 
                 String messageNodeF=item.substring(0, item.length() - 10);
                 //messageNodeF has the name of sender+ content with getData

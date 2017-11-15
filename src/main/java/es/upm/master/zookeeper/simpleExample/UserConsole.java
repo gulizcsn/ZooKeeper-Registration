@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public class UserConsole {
     private JTextField usernameTextField;
@@ -23,9 +24,11 @@ public class UserConsole {
     private JLabel labelMessage;
     private JButton buttonLogOut;
     private JButton buttonQuit;
+    private JTextArea ConsoleReading;
 
 
     public UserConsole() {
+        ZKWriter zkw = new ZKWriter();
 
         textAreaMessage.setVisible(false);
         textFieldMessageTo.setVisible(false);
@@ -35,11 +38,12 @@ public class UserConsole {
         labelMessage.setVisible(false);
         buttonLogOut.setVisible(false);
         buttonQuit.setVisible(false);
+        ConsoleReading.setVisible(false);
+
 
         buttonLogInRegister.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ZKWriter zkw = new ZKWriter();
                 String clientName = usernameTextField.getText();
 
                 try {
@@ -85,20 +89,8 @@ public class UserConsole {
         buttonSendMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ZKWriter zkw = new ZKWriter();
                 String receiverName = textFieldMessageTo.getText();
                 String messageContent = textAreaMessage.getText();
-                String clientName = usernameTextField.getText();
-
-                try {
-                    zkw.ZKWriter(clientName);
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
 
                 try {
                     zkw.send(receiverName, messageContent);
@@ -116,29 +108,26 @@ public class UserConsole {
         buttonReadMyMessages.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ZKWriter zkw = new ZKWriter();
-                String clientName = usernameTextField.getText();
-
-                try {
-                    zkw.ZKWriter(clientName);
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
 
                 final JFrame frame = new JFrame();
+
                 try {
-                    JOptionPane.showMessageDialog(frame.getComponent(0),  zkw.read());
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                } catch (UnsupportedEncodingException e1) {
-                    e1.printStackTrace();
-                }
+                    ConsoleReading.setVisible(true);
+                    List<String> messages= zkw.read();
+                    for (String received : messages) {
+
+                        //ConsoleReading.setText(received);
+                        ConsoleReading.append(received);
+                        ConsoleReading.append("\n");
+                    }
+                        //JOptionPane.showMessageDialog(frame.getComponent(0),  );
+                    } catch (KeeperException e1) {
+                        e1.printStackTrace();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                    }
             }
         });
 
@@ -146,10 +135,10 @@ public class UserConsole {
         buttonLogOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ZKWriter zkw = new ZKWriter();
-                String clientName = usernameTextField.getText();
+           //     ZKWriter zkw = new ZKWriter();
+            //    String clientName = usernameTextField.getText();
 
-                try {
+               /* try {
                     zkw.ZKWriter(clientName);
                 } catch (KeeperException e1) {
                     e1.printStackTrace();
@@ -157,7 +146,7 @@ public class UserConsole {
                     e1.printStackTrace();
                 } catch (IOException e1) {
                     e1.printStackTrace();
-                }
+                }*/
 
                 try {
                     zkw.goOffline();
