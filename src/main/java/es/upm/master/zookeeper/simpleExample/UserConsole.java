@@ -1,8 +1,6 @@
 package es.upm.master.zookeeper.simpleExample;
 
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -10,14 +8,15 @@ import java.awt.event.ActionListener;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class UserConsole {
+public class UserConsole{
     private JTextField usernameTextField;
     private JButton buttonLogInRegister;
     private JPanel formulario;
     private JTextArea textAreaMessage;
-    private JTextField textFieldMessageTo;
+    //private JComboBox comboMessageTo;
     private JButton buttonSendMessage;
     private JButton buttonReadMyMessages;
     private JLabel labelSendMessageTo;
@@ -25,13 +24,17 @@ public class UserConsole {
     private JButton buttonLogOut;
     private JButton buttonQuit;
     private JTextArea ConsoleReading;
+    private JLabel chatlabel;
+    private JTextArea textMessageTo;
+    private String online = "/System/Online/";
+    private List<String> usersOn;
 
 
     public UserConsole() {
         ZKWriter zkw = new ZKWriter();
 
         textAreaMessage.setVisible(false);
-        textFieldMessageTo.setVisible(false);
+       // comboMessageTo.setVisible(false);
         buttonSendMessage.setVisible(false);
         buttonReadMyMessages.setVisible(false);
         labelSendMessageTo.setVisible(false);
@@ -39,7 +42,10 @@ public class UserConsole {
         buttonLogOut.setVisible(false);
         buttonQuit.setVisible(false);
         ConsoleReading.setVisible(false);
+        chatlabel.setVisible(false);
+        textMessageTo.setVisible(false);
 
+       // List<String> usersOn = new ArrayList<String>();
 
         buttonLogInRegister.addActionListener(new ActionListener() {
             @Override
@@ -47,7 +53,7 @@ public class UserConsole {
                 String clientName = usernameTextField.getText();
 
                 try {
-                    zkw.ZKWriter(clientName);
+                    zkw.ZKWriter(clientName, UserConsole.this);
                 } catch (KeeperException e1) {
                     e1.printStackTrace();
                 } catch (InterruptedException e1) {
@@ -73,8 +79,17 @@ public class UserConsole {
                 }
 
                 textAreaMessage.setVisible(true);
-                textFieldMessageTo.setVisible(true);
+                //comboMessageTo.setVisible(true);
                 buttonSendMessage.setVisible(true);
+                /*try {
+                    List messages= zkw.zoo.getChildren(online,false);
+                    fillCombo(messages);
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }*/
+               // comboMessageTo.setVisible(true);
                 buttonReadMyMessages.setVisible(true);
                 labelSendMessageTo.setVisible(true);
                 labelMessage.setVisible(true);
@@ -82,14 +97,20 @@ public class UserConsole {
                 buttonLogInRegister.setVisible(false);
                 usernameTextField.setEditable(false);
                 buttonQuit.setVisible(false);
+                textMessageTo.setVisible(true);
+
             }
         });
+
+
 
         // Button that controls when to SEND a message
         buttonSendMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String receiverName = textFieldMessageTo.getText();
+
+                //String receiverName = comboMessageTo.getName();
+                String receiverName = textMessageTo.getText();
                 String messageContent = textAreaMessage.getText();
 
                 try {
@@ -104,49 +125,10 @@ public class UserConsole {
             }
         });
 
-        // Button that controls when to READ a message
-        buttonReadMyMessages.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                final JFrame frame = new JFrame();
-
-                try {
-                    ConsoleReading.setVisible(true);
-                    List<String> messages= zkw.read();
-                    for (String received : messages) {
-
-                        //ConsoleReading.setText(received);
-                        ConsoleReading.append(received);
-                        ConsoleReading.append("\n");
-                    }
-                        //JOptionPane.showMessageDialog(frame.getComponent(0),  );
-                    } catch (KeeperException e1) {
-                        e1.printStackTrace();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    } catch (UnsupportedEncodingException e1) {
-                        e1.printStackTrace();
-                    }
-            }
-        });
-
         // Button that controls when to QUIT
         buttonLogOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-           //     ZKWriter zkw = new ZKWriter();
-            //    String clientName = usernameTextField.getText();
-
-               /* try {
-                    zkw.ZKWriter(clientName);
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }*/
 
                 try {
                     zkw.goOffline();
@@ -157,7 +139,7 @@ public class UserConsole {
                 }
 
                 textAreaMessage.setVisible(false);
-                textFieldMessageTo.setVisible(false);
+              //  comboMessageTo.setVisible(false);
                 buttonSendMessage.setVisible(false);
                 buttonReadMyMessages.setVisible(false);
                 labelSendMessageTo.setVisible(false);
@@ -166,6 +148,9 @@ public class UserConsole {
                 buttonLogOut.setVisible(false);
                 buttonQuit.setVisible(true);
                 usernameTextField.setEditable(true);
+                textMessageTo.setVisible(false);
+                chatlabel.setVisible(false);
+                ConsoleReading.setVisible(false);
             }
         });
 
@@ -177,7 +162,7 @@ public class UserConsole {
                 String clientName = usernameTextField.getText();
 
                 try {
-                    zkw.ZKWriter(clientName);
+                    zkw.ZKWriter(clientName, UserConsole.this);
                 } catch (KeeperException e1) {
                     e1.printStackTrace();
                 } catch (InterruptedException e1) {
@@ -196,7 +181,28 @@ public class UserConsole {
             }
         });
     }
+/*
+    public void fillCombo(List <String> usersOn){
+        comboMessageTo.removeAllItems();
+        for (String user : usersOn) {
+            comboMessageTo.addItem(user);
+        }
+    }*/
 
+    public void addMessage(List<String> messages){
+
+
+            ConsoleReading.setVisible(true);
+            chatlabel.setVisible(true);
+            for (String received : messages) {
+
+                //ConsoleReading.setText(received);
+                ConsoleReading.append(received);
+                ConsoleReading.append("\n");
+            }
+
+
+    }
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         JFrame frames = new JFrame("ZooApp");
@@ -209,5 +215,8 @@ public class UserConsole {
 
     }
 
-
+/*
+    private void createUIComponents() {
+        TODO: place custom component creation code here
+    }*/
 }

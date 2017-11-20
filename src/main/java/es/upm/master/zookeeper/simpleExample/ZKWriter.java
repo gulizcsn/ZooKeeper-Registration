@@ -3,15 +3,17 @@ package es.upm.master.zookeeper.simpleExample;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class ZKWriter implements Watcher{
     private Stat stat;
-    private ZooKeeper zoo;
+    public ZooKeeper zoo;
     private String enroll = "/System/Request/Enroll/";
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
@@ -20,6 +22,7 @@ public class ZKWriter implements Watcher{
     private String backup ="/System/Backup/";
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
+    public UserConsole userConsole;
 
     interface Control {
         byte[] NEW = "-1".getBytes();
@@ -28,9 +31,10 @@ public class ZKWriter implements Watcher{
         byte[] EXISTS = "2".getBytes();
     }
 
-    public void ZKWriter(String user) throws KeeperException, InterruptedException, IOException {
+    public void ZKWriter(String user, UserConsole userC) throws KeeperException, InterruptedException, IOException {
         this.zoo = zooConnect();    // Connects to ZooKeeper service
         this.name=user;
+        userConsole=userC;
 
     }
     public void zooDisconnect() throws InterruptedException {
@@ -58,6 +62,7 @@ public class ZKWriter implements Watcher{
                 zoo.create(path,ZKWriter.Control.NEW , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 //Setting watcher if state  of Control changes
                 zoo.exists(path , (Watcher) this);
+                zoo.getChildren("/System/Online",this);
             } catch (KeeperException.NodeExistsException e) {
                 //node existis, changing status
                 //zoo.create(path,Test.Control.EXISTS , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT); ??
@@ -94,6 +99,13 @@ public class ZKWriter implements Watcher{
             System.out.println("USER "+name+" NOT ONLINE >> CONNECTING");
             zoo.create(path, ZKWriter.Control.NEW, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         }
+
+        Thread.sleep(1500);
+        System.out.println("creating watcher under Queue");
+        zoo.getChildren(queue+name, this);
+
+
+
     }
 
     public void goOffline() throws KeeperException, InterruptedException {
@@ -115,6 +127,7 @@ public class ZKWriter implements Watcher{
     public void send(String receiver, String msg) throws KeeperException, InterruptedException, UnsupportedEncodingException {
         //first check if sender is online...
         stat= zoo.exists(queue+name, false);
+
         Stat statReceiver= zoo.exists(queue+name, false);
         if (stat!=null) {
             System.out.println( "From: "+name + " -> To: " + receiver + " >>>" + msg);
@@ -122,7 +135,7 @@ public class ZKWriter implements Watcher{
             //creamos nodo ephemeral sequential under the receiver. but first check if he is connected
             if(statReceiver!=null) {
                 //receiver is onloine in queue- so we put under queue+receiver
-                System.out.println("Receiver" + receiver+ " is ONLINE");
+                System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
                 //zoo.create(queue + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 zoo.create(queue + receiver + "/" + name, msg.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
                 //MESSAGES STRUCTURE: Queue/Receiver/Sender000000X and inside data is the message in bytes
@@ -140,8 +153,7 @@ public class ZKWriter implements Watcher{
                     byte[] message=zoo.getData(queue + receiver + "/" + receivedm, null, null);
                     //convert byte to string
                     String strmsg = new String(message, "UTF-8");
-                    System.out.println("THis is the node:  " + receivedm +" and the message inside: "+ strmsg);
-                    //String senderRetrieved=receivedm.substring(0, receivedm.length() - 10);
+                    //System.out.println("THis is the node:  " + receivedm +" and the message inside: "+ strmsg);
                 }
 
             }else{
@@ -162,10 +174,9 @@ public class ZKWriter implements Watcher{
         stat= zoo.exists(online+name, false);
         Stat statQueue= zoo.exists(queue+name, false);
         if (stat!=null) {
-            System.out.println("This guy is online and wants to read messages: " + name );
+            //System.out.println("This guy is online and wants to read messages: " + name );
             if(statQueue!=null) {
                 List<String> messages = zoo.getChildren(queue + name, null);
-
 
                 if (messages.isEmpty()) {
                     System.out.println("There is no message in queue.");
@@ -184,14 +195,15 @@ public class ZKWriter implements Watcher{
                     String sender = eachMessage.substring(0, eachMessage.length() - 10);
                     byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
                     String messageMeans = new String(message, "UTF-8");
-                    System.out.println("THis is the node1:  " + eachMessage +" and the message inside");
+                    //System.out.println("THis is the node1:  " + eachMessage +" and the message inside");
 
                     // delete the message from the queue as soon as it is read
                     sendermess.add(sender + ": " + messageMeans);
-
                     //we will delete only when consuming one sender messages
                     zoo.delete(queue + name + "/" + eachMessage, -1);
                 }
+                System.out.println("sending messages through watcher QUEUE");
+                userConsole.addMessage(sendermess);
             }
             else{
                 System.out.println("There is no queue for this user: " + name );
@@ -269,6 +281,38 @@ public class ZKWriter implements Watcher{
                     e.printStackTrace();
                 }
             }
+        } else if (event.getType() == Event.EventType.NodeChildrenChanged) {
+            if (event.getPath().contains("Queue")){
+                System.out.println("New Message for" + event.getPath());
+                try {
+                    read();
+                } catch (KeeperException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }else if (event.getPath().contains("Online")){
+                //refresh combobox and add new list
+                try {
+                    List usersOnline= zoo.getChildren(online, false);
+                  //  userConsole.fillCombo(usersOnline);
+                } catch (KeeperException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        try {
+            zoo.getChildren(queue+name, this);
+            zoo.getChildren("/System/Online", this);
+
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -294,17 +338,17 @@ public class ZKWriter implements Watcher{
         connectionLatch.await(10, TimeUnit.SECONDS);
         return zoo;
     }
-
+/*
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         ZKWriter zkw = new ZKWriter();
-        zkw.ZKWriter("Cris");
+        zkw.ZKWriter("Cris", this);
         zkw.create();
         Thread.sleep(1000);
         zkw.goOnline();
 
 
         ZKWriter zkw1 = new ZKWriter();
-        zkw1.ZKWriter("BELUSMOR");
+        zkw1.ZKWriter("BELUSMOR", this);
         zkw1.create();
         Thread.sleep(1000);
         zkw1.goOnline();
@@ -312,7 +356,7 @@ public class ZKWriter implements Watcher{
 
 
         ZKWriter zkw2 = new ZKWriter();
-        zkw2.ZKWriter("Ahmet");
+        zkw2.ZKWriter("Ahmet", this);
         zkw2.create();
         Thread.sleep(1000);
         zkw2.goOnline();
@@ -332,4 +376,5 @@ public class ZKWriter implements Watcher{
 
         Thread.sleep(50000);
     }
+*/
 }
