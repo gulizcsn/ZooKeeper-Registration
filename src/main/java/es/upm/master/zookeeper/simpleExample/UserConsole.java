@@ -194,6 +194,7 @@ public class UserConsole{
 
             ConsoleReading.setVisible(true);
             chatlabel.setVisible(true);
+
             for (String received : messages) {
 
                 //ConsoleReading.setText(received);

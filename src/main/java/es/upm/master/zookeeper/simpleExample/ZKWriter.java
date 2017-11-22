@@ -3,10 +3,9 @@ package es.upm.master.zookeeper.simpleExample;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
-import java.awt.event.ActionListener;
+import java.sql.Timestamp;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -100,7 +99,7 @@ public class ZKWriter implements Watcher{
             zoo.create(path, ZKWriter.Control.NEW, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         }
 
-        Thread.sleep(1500);
+        Thread.sleep(60000);
         System.out.println("creating watcher under Queue");
         zoo.getChildren(queue+name, this);
 
@@ -128,7 +127,7 @@ public class ZKWriter implements Watcher{
         //first check if sender is online...
         stat= zoo.exists(queue+name, false);
 
-        Stat statReceiver= zoo.exists(queue+name, false);
+        Stat statReceiver= zoo.exists(online+name, false);
         if (stat!=null) {
             System.out.println( "From: "+name + " -> To: " + receiver + " >>>" + msg);
 
@@ -195,10 +194,13 @@ public class ZKWriter implements Watcher{
                     String sender = eachMessage.substring(0, eachMessage.length() - 10);
                     byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
                     String messageMeans = new String(message, "UTF-8");
-                    //System.out.println("THis is the node1:  " + eachMessage +" and the message inside");
+
+
+                      Date date = new Date();
+                      Timestamp newTime = new Timestamp(date.getTime());
 
                     // delete the message from the queue as soon as it is read
-                    sendermess.add(sender + ": " + messageMeans);
+                    sendermess.add("{"+ newTime +"} " + sender + ": " + messageMeans);
                     //we will delete only when consuming one sender messages
                     zoo.delete(queue + name + "/" + eachMessage, -1);
                 }
