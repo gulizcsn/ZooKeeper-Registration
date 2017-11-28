@@ -101,7 +101,7 @@ public class UserConsole{
             public void actionPerformed(ActionEvent e) {
 
                 //String receiverName = comboMessageTo.getName();
-                String receiverName = textMessageTo.getText();
+                String receiverName = userComboBox.getSelectedItem().toString();
                 String messageContent = textAreaMessage.getText();
 
                 try {
