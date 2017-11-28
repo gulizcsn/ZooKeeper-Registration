@@ -29,6 +29,7 @@ public class UserConsole{
     private JTextArea ConsoleReading;
     private JLabel chatlabel;
     private JComboBox userComboBox;
+    private JScrollPane JScrollTextArea;
     private String online = "/System/Online/";
 
     public UserConsole() {
@@ -44,6 +45,7 @@ public class UserConsole{
         ConsoleReading.setVisible(false);
         chatlabel.setVisible(false);
         userComboBox.setVisible(false);
+        JScrollTextArea.setVisible(false);
 
         buttonLogInRegister.addActionListener(new ActionListener() {
             @Override
@@ -86,6 +88,7 @@ public class UserConsole{
                 usernameTextField.setEditable(false);
                 buttonQuit.setVisible(false);
                 userComboBox.setVisible(true);
+
 
             }
         });
@@ -202,6 +205,7 @@ public class UserConsole{
 
 
             ConsoleReading.setVisible(true);
+            JScrollTextArea.setVisible(true);
             chatlabel.setVisible(true);
 
             for (String received : messages) {
@@ -216,7 +220,7 @@ public class UserConsole{
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         JFrame frames = new JFrame("ZooApp");
-        frames.setPreferredSize(new Dimension(500,300));
+        frames.setPreferredSize(new Dimension(500,350));
         frames.setLocation(500,250);
         frames.setContentPane(new UserConsole().formulario);
         frames.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -224,6 +228,7 @@ public class UserConsole{
         frames.setVisible(true);
 
     }
+
 
 /*
     private void createUIComponents() {
