@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e51bfb2c-836d-4b50-b6a0-7d078c7f037b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form" afterPath="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java" afterPath="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -25,11 +24,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ZKWriter.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ZKWriter.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1311">
-              <caret line="223" column="0" lean-forward="true" selection-start-line="223" selection-start-column="0" selection-end-line="223" selection-end-column="0" />
+            <state relative-caret-position="179">
+              <caret line="310" column="0" lean-forward="false" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -50,18 +49,18 @@
       <file leaf-file-name="UserConsole.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="103" column="80" lean-forward="false" selection-start-line="103" selection-start-column="80" selection-end-line="103" selection-end-column="80" />
+            <state relative-caret-position="398">
+              <caret line="140" column="45" lean-forward="false" selection-start-line="140" selection-start-column="45" selection-end-line="140" selection-end-column="45" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#6179#7189#0" expanded="true" />
-                <element signature="e#7188#7189#0" expanded="true" />
+                <element signature="e#6052#7062#0" expanded="true" />
+                <element signature="e#7061#7062#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UserConsole.form" pinned="false" current-in-tab="true">
+      <file leaf-file-name="UserConsole.form" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form">
           <provider selected="true" editor-type-id="ui-designer">
             <state />
@@ -79,8 +78,8 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>textMessageTo</find>
       <find>thread</find>
+      <find>textMessageTo</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -99,8 +98,8 @@
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java" />
-        <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form" />
+        <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java" />
       </list>
     </option>
   </component>
@@ -737,31 +736,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1311">
-          <caret line="223" column="0" lean-forward="true" selection-start-line="223" selection-start-column="0" selection-end-line="223" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form">
+      <provider selected="true" editor-type-id="ui-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="103" column="80" lean-forward="false" selection-start-line="103" selection-start-column="80" selection-end-line="103" selection-end-column="80" />
+        <state relative-caret-position="398">
+          <caret line="140" column="45" lean-forward="false" selection-start-line="140" selection-start-column="45" selection-end-line="140" selection-end-column="45" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#6179#7189#0" expanded="true" />
-            <element signature="e#7188#7189#0" expanded="true" />
+            <element signature="e#6052#7062#0" expanded="true" />
+            <element signature="e#7061#7062#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form">
-      <provider selected="true" editor-type-id="ui-designer">
-        <state />
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="310" column="0" lean-forward="false" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
       </provider>
     </entry>
   </component>

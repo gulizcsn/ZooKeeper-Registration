@@ -28,7 +28,6 @@ public class UserConsole{
     private JButton buttonQuit;
     private JTextArea ConsoleReading;
     private JLabel chatlabel;
-    private JTextArea textMessageTo;
     private JComboBox userComboBox;
     private String online = "/System/Online/";
 
@@ -44,7 +43,6 @@ public class UserConsole{
         buttonQuit.setVisible(false);
         ConsoleReading.setVisible(false);
         chatlabel.setVisible(false);
-        textMessageTo.setVisible(false);
         userComboBox.setVisible(false);
 
         buttonLogInRegister.addActionListener(new ActionListener() {
@@ -87,7 +85,6 @@ public class UserConsole{
                 buttonLogInRegister.setVisible(false);
                 usernameTextField.setEditable(false);
                 buttonQuit.setVisible(false);
-                textMessageTo.setVisible(true);
                 userComboBox.setVisible(true);
 
             }
@@ -139,9 +136,9 @@ public class UserConsole{
                 buttonLogOut.setVisible(false);
                 buttonQuit.setVisible(true);
                 usernameTextField.setEditable(true);
-                textMessageTo.setVisible(false);
                 chatlabel.setVisible(false);
                 ConsoleReading.setVisible(false);
+                userComboBox.setVisible(false);
             }
         });
 
