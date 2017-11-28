@@ -99,7 +99,7 @@ public class ZKWriter implements Watcher{
             zoo.create(path, ZKWriter.Control.NEW, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         }
 
-        Thread.sleep(60000);
+        Thread.sleep(1000);
         System.out.println("creating watcher under Queue");
         zoo.getChildren(queue+name, this);
 
@@ -317,6 +317,8 @@ public class ZKWriter implements Watcher{
             e.printStackTrace();
         }
     }
+
+
 
     static ZooKeeper zooConnect() throws IOException, InterruptedException {
 

@@ -1,12 +1,16 @@
 package es.upm.master.zookeeper.simpleExample;
 
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +20,6 @@ public class UserConsole{
     private JButton buttonLogInRegister;
     private JPanel formulario;
     private JTextArea textAreaMessage;
-    //private JComboBox comboMessageTo;
     private JButton buttonSendMessage;
     private JButton buttonReadMyMessages;
     private JLabel labelSendMessageTo;
@@ -26,15 +29,13 @@ public class UserConsole{
     private JTextArea ConsoleReading;
     private JLabel chatlabel;
     private JTextArea textMessageTo;
+    private JComboBox userComboBox;
     private String online = "/System/Online/";
-    private List<String> usersOn;
-
 
     public UserConsole() {
         ZKWriter zkw = new ZKWriter();
 
         textAreaMessage.setVisible(false);
-       // comboMessageTo.setVisible(false);
         buttonSendMessage.setVisible(false);
         buttonReadMyMessages.setVisible(false);
         labelSendMessageTo.setVisible(false);
@@ -44,8 +45,7 @@ public class UserConsole{
         ConsoleReading.setVisible(false);
         chatlabel.setVisible(false);
         textMessageTo.setVisible(false);
-
-       // List<String> usersOn = new ArrayList<String>();
+        userComboBox.setVisible(false);
 
         buttonLogInRegister.addActionListener(new ActionListener() {
             @Override
@@ -79,17 +79,7 @@ public class UserConsole{
                 }
 
                 textAreaMessage.setVisible(true);
-                //comboMessageTo.setVisible(true);
                 buttonSendMessage.setVisible(true);
-                /*try {
-                    List messages= zkw.zoo.getChildren(online,false);
-                    fillCombo(messages);
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }*/
-               // comboMessageTo.setVisible(true);
                 buttonReadMyMessages.setVisible(true);
                 labelSendMessageTo.setVisible(true);
                 labelMessage.setVisible(true);
@@ -98,6 +88,7 @@ public class UserConsole{
                 usernameTextField.setEditable(false);
                 buttonQuit.setVisible(false);
                 textMessageTo.setVisible(true);
+                userComboBox.setVisible(true);
 
             }
         });
@@ -180,14 +171,35 @@ public class UserConsole{
                 System.exit(0);
             }
         });
-    }
+
+        userComboBox.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+                userComboBox.removeAllItems();
+
+                List <String> childrenOnlineUsers = null;
+                try {
+                    childrenOnlineUsers = zkw.zoo.getChildren("/System/Online", false);
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
 /*
-    public void fillCombo(List <String> usersOn){
-        comboMessageTo.removeAllItems();
-        for (String user : usersOn) {
-            comboMessageTo.addItem(user);
-        }
-    }*/
+                for(int i = 0; i < childrenOnlineUsers.size(); i++)
+                    System.out.println(childrenOnlineUsers.get(i));  //To show on console
+                    userComboBox.addItem(childrenOnlineUsers); // To add in the ComboBox
+                    userComboBox.addItem(childrenOnlineUsers);
+                return;*/
+
+                userComboBox.setModel(new DefaultComboBoxModel(childrenOnlineUsers.toArray()));
+
+            }
+        });
+
+    }
+
 
     public void addMessage(List<String> messages){
 
