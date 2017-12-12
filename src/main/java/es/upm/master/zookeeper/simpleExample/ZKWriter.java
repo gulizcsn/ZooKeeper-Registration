@@ -34,8 +34,9 @@ public class ZKWriter implements Watcher{
         this.zoo = zooConnect();    // Connects to ZooKeeper service
         this.name=user;
         userConsole=userC;
-
     }
+
+
     public void zooDisconnect() throws InterruptedException {
 
         zoo.close();
