@@ -17,10 +17,8 @@ public class ZKManager implements Watcher{
     public List<String> regList;
     private String enroll = "/System/Request/Enroll/";
     private String online = "/System/Online/";
-    private String queue = "/System/Queue/";
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
-    private String backup ="/System/Backup/";
 
     interface Control {
         byte[] NEW = "-1".getBytes();
@@ -58,7 +56,6 @@ public class ZKManager implements Watcher{
             //create protected node
             zoo.create("/System", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zoo.create("/System/Registry", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
-            zoo.create("/System/Backup", "znode".getBytes(), ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
         }
         catch (KeeperException.NodeExistsException e) {      }
 
@@ -73,7 +70,6 @@ public class ZKManager implements Watcher{
 
         zoo.create("/System/Online", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         //create znode sequential
-        zoo.create("/System/Queue", "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
 
         SetWatchers();
@@ -82,7 +78,6 @@ public class ZKManager implements Watcher{
     public void destroyTree() throws KeeperException, InterruptedException {
         destroyTreeProcess("/System/Request");
         destroyTreeProcess("/System/Online");
-        destroyTreeProcess("/System/Queue");
     }
 
 
@@ -116,25 +111,7 @@ public class ZKManager implements Watcher{
             System.out.println(event.getPath() + " created");
             //if it comes from /enroll- run ZKManager registry
 
-        } else if (event.getType() == EventType.NodeDeleted) {
-            System.out.println(event.getPath() + " deleted");
-
-            if (event.getPath().contains("Online")) {
-                //we are disconnecting someone.
-                String pathOff= event.getPath();
-                System.out.println("User: " + pathOff+ " try to be offline");
-                try {
-                    offlineCheck(pathOff);
-                } catch (KeeperException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-
-        } else if (event.getType() == EventType.NodeDataChanged) {
+        }  else if (event.getType() == EventType.NodeDataChanged) {
             System.out.println(event.getPath()+ "changed");
 
 
@@ -186,11 +163,9 @@ public class ZKManager implements Watcher{
                     e.printStackTrace();
                 }
 
-            } else if (event.getPath().contains("Queue")) {
-                System.out.println("New node inside QUEUE");
+            }
 
-
-            } else {
+            else {
                 System.out.println(event.getPath() + " what is this??");
             }
 
@@ -292,52 +267,6 @@ public class ZKManager implements Watcher{
             e.printStackTrace();
         }
     }
-    private void offlineCheck(String path)throws KeeperException, InterruptedException {
-        //1st check if code is 2
-        String name= path.replace("/System/Online/", "");
-        System.out.println("USER"+ name + "is about to go offline");
-
-        if(zoo.exists(queue+name, false)!=null) {
-
-            List <String> toback = zoo.getChildren(queue + name, false);
-
-            if (!toback.isEmpty()) { // not empty, there are messages to read
-
-                Comparator<String> sortRule = new Comparator<String>() {
-                    @Override
-                    public int compare(String left, String right) {
-                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
-                    }
-                };
-
-                Collections.sort(toback, sortRule);
-                System.out.println("there are unread messages ");
-                System.out.println(toback);
-
-                for (String item : toback) {
-                    //we will get thenode, get only the sender, and create sequentially in queue
-                    //we give priority to the messages coming from the backup node.
-
-                    String messageNodeF=item.substring(0, item.length() - 10);
-                    //messageNodeF has the name of sender+ content with getData
-                    byte[] message=zoo.getData(queue + name + "/" + item, null, null);
-
-                    String copyMess = backup + name + "/" + messageNodeF; //node were messages will go
-                    String delMess = queue + name + "/" + item;
-                    if(zoo.exists(backup + name,false)==null){
-                        zoo.create(backup + name , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);//1st create rute
-                    }
-                    zoo.create(copyMess, message, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);//add messages
-                    zoo.delete(delMess, -1);
-                }
-            } else {
-                System.out.println("No backup messages to copy");
-            }
-        }
-        //zoo.delete(path, -1);
-        zoo.delete(queue+name, -1);
-
-    }
 
 
     private void onlineCheck(String path)throws KeeperException, InterruptedException {
@@ -347,82 +276,14 @@ public class ZKManager implements Watcher{
         for (String item : chilOn) {
             boolean bol=false;
             //see if item has code exists.
-            Stat stat=zoo.exists(queue+item, false);
             //online put in queue the ONLINE users that are not in Queue
-            if (regList.contains(item) && stat==null) {
-                String pathQue= queue + item;
+            if (regList.contains(item)) {
                 //we create the watcher for status of
                 zoo.exists(online+item, this);
                 System.out.println("watcher putted under "+ item);
 
-                //the user is in reglist, so lets make him go to wait for messages .
-                try {
-                    zoo.create(pathQue , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                    //watcher en data changed
-                    System.out.println("Adding"+ item+" to Queue");
-
-                    bol=true;
-
-                } catch (KeeperException.NodeExistsException e1) {
-                    System.out.println("User"+ item+" has been in QUEUE  before");
-                    bol=false;
-                } catch (Exception e1) {bol=false; }
-
-                //zoo.exists(online+item , (Watcher) this);
-
-                if(bol){
-                    System.out.println("going to get backups");
-                    if(zoo.exists(backup+item, false)!=null){
-                        this.onlineManagement(item);
-                    }
-
-                }
             }
         }
-
-    }
-        /* Start recovery from /backup/w_id
-        this online Users management is created inside node Queue. we will watch children under backup and copy them to queue
-        watcher trigered before inside online- so we create backup node, and get the messages from backup.
-        this NOde is /Backup/user/sendermessage*/
-    public void onlineManagement(String name)throws KeeperException, InterruptedException {
-
-        List<String> backMess = zoo.getChildren(backup+name, false);
-
-        if(!backMess.isEmpty()){
-            System.out.println("there are backuped messages ");
-
-            //if list not empty. we get all the messages and move them to Queue
-            //the list will be structured as /Sender0000000x
-            //we should get all childer, sort them, and put in queue
-
-            Comparator<String> sortRule = new Comparator<String>() {
-                @Override
-                public int compare(String left, String right) {
-                    return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
-                }
-            };
-
-            Collections.sort(backMess, sortRule);            for (String item : backMess) {
-
-                String messageNodeF=item.substring(0, item.length() - 10);
-                //messageNodeF has the name of sender+ content with getData
-                byte[] message=zoo.getData(backup + name + "/" + item, null, null);
-
-                String copyMess = queue + name + "/" + messageNodeF; //node were messages will go
-                String delMess = backup + name + "/" + item;
-
-                if(zoo.exists(queue + name,false)==null){
-                    zoo.create(queue + name , "0".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);//1st create rute
-                }
-                zoo.create(copyMess, message, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);//add messages
-                zoo.delete(delMess, -1);
-            }
-
-        }else {
-            System.out.println("No backup messages to copy");
-        }
-        zoo.delete( backup+name, -1);
 
     }
 
@@ -449,18 +310,8 @@ public class ZKManager implements Watcher{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        try {
-            zoo.getChildren("/System/Queue", this);
-        } catch (KeeperException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-    }
 
-    public List<String> getList() {
-        return regList;
     }
 
     static ZooKeeper zooConnect() throws IOException, InterruptedException {
@@ -490,7 +341,6 @@ public class ZKManager implements Watcher{
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         ZKManager manager = new ZKManager();
         manager.ZKManager();
-
 
         for(int i = 0; i < 10000; i++)
             Thread.sleep(20);

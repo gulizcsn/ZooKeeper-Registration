@@ -1,15 +1,21 @@
 package es.upm.master.zookeeper.kafkaCode;
 
-import es.upm.master.zookeeper.simpleExample.UserConsole;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.zookeeper.ZooKeeper;
 
 public class ZKWriter implements Watcher{
     private Stat stat;
@@ -18,11 +24,10 @@ public class ZKWriter implements Watcher{
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
     private String online = "/System/Online/";
-    private String queue = "/System/Queue/";
-    private String backup ="/System/Backup/";
+
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
-    public UserConsole userConsole;
+    public kafkaUConsole userConsole;
 
     interface Control {
         byte[] NEW = "-1".getBytes();
@@ -31,7 +36,7 @@ public class ZKWriter implements Watcher{
         byte[] EXISTS = "2".getBytes();
     }
 
-    public void ZKWriter(String user, UserConsole userC) throws KeeperException, InterruptedException, IOException {
+    public void ZKWriter(String user, kafkaUConsole userC) throws KeeperException, InterruptedException, IOException {
         this.zoo = zooConnect();    // Connects to ZooKeeper service
         this.name=user;
         userConsole=userC;
@@ -101,12 +106,6 @@ public class ZKWriter implements Watcher{
             zoo.create(path, ZKWriter.Control.NEW, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         }
 
-        Thread.sleep(1000);
-        System.out.println("creating watcher under Queue");
-        zoo.getChildren(queue+name, this);
-
-
-
     }
 
     public void goOffline() throws KeeperException, InterruptedException {
@@ -126,107 +125,85 @@ public class ZKWriter implements Watcher{
 
 
     public void send(String receiver, String msg) throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        //first check if sender is online...
-        stat= zoo.exists(queue+name, false);
-
         Stat statReceiver= zoo.exists(online+name, false);
-        if (stat!=null) {
-            System.out.println( "From: "+name + " -> To: " + receiver + " >>>" + msg);
 
-            //creamos nodo ephemeral sequential under the receiver. but first check if he is connected
+        //creamos nodo ephemeral sequential under the receiver. but first check if he is connected
             if(statReceiver!=null) {
-                //receiver is onloine in queue- so we put under queue+receiver
-                System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
+                //System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
                 //zoo.create(queue + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                zoo.create(queue + receiver + "/" + name, msg.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-                //MESSAGES STRUCTURE: Queue/Receiver/Sender000000X and inside data is the message in bytes
-                List<String> messages=zoo.getChildren(queue+receiver, false);
-                Comparator<String> sortRule = new Comparator<String>() {
-                    @Override
-                    public int compare(String left, String right) {
-                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
-                    }
-                };
+                Properties props = new Properties();
+                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+                props.put("acks", "all");
+                props.put("retries", 0);
+                props.put("batch.size", 16384);
+                props.put("buffer.memory", 33554432);
+                props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+                props.put("value.serializer",
+                        "org.apache.kafka.common.serialization.StringSerializer");
 
-                Collections.sort(messages, sortRule);
+                KafkaProducer<String, String> prod = new KafkaProducer<String, String>(props);
+                String topic = receiver.toString();
+                int partition = 0;
+                String key = "From: " + name.toString();
+                String value = msg.toString();
+                prod.send(new ProducerRecord<String, String>(topic,partition,key, value));
+                prod.close();
+                System.out.println("Sender"+ name + "to receiver : "+ topic + value);
 
-                for (String receivedm : messages) {
-                    byte[] message=zoo.getData(queue + receiver + "/" + receivedm, null, null);
-                    //convert byte to string
-                    String strmsg = new String(message, "UTF-8");
-                    //System.out.println("THis is the node:  " + receivedm +" and the message inside: "+ strmsg);
-                }
-
-            }else{
-                //user is not online, we add it to backup so later he will be able to read them
-                System.out.println("Receiver" + receiver+ " is OFFLINE");
-                zoo.create(backup + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                zoo.create(backup + receiver + "/" + msg, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
-            }
-        }else {
+            }else {
             System.out.println("SENDER NOT ONLINE");
-        }
-    }
+        }}
 
-    public List<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
 
+    public ConsumerRecords<String, String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
         List<String> sendermess = new ArrayList<String>();
         //first check if sender is online...
+
         stat= zoo.exists(online+name, false);
-        Stat statQueue= zoo.exists(queue+name, false);
-        if (stat!=null) {
+        if (stat!=null){
             //System.out.println("This guy is online and wants to read messages: " + name );
-            if(statQueue!=null) {
-                List<String> messages = zoo.getChildren(queue + name, null);
 
-                if (messages.isEmpty()) {
-                    System.out.println("There is no message in queue.");
-                    return null;
-                }
+            Properties props = new Properties();
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                    "localhost:9092");props.put("group.id", "MYGROUP");
+            props.put("enable.auto.commit", "true");props.put("auto.commit.interval.ms",
+                    "1000");props.put("key.deserializer",
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            props.put("value.deserializer",
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+            //ConsumerRecords<String, String> records;
+            String messageContent = null;
+            try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(200);
+                    System.out.println("This guy is online and wants to read messages222: " + records );
 
-                Comparator<String> sortRule = new Comparator<String>() {
-                    @Override
-                    public int compare(String left, String right) {
-                        return Integer.parseInt(left.substring(left.length()-10),left.length()) - Integer.parseInt((right.substring(right.length()-10,right.length()))); // use your logic
+                    for (ConsumerRecord<String, String> record : records){
+                        System.out.print("Topic: " + record.topic() + ", ");
+                        System.out.print("Partition: " + record.partition() + ", ");
+                        System.out.print("Key: " + record.key() + ", ");
+                        System.out.println("Value: " + record.value() + ", ");
+                        messageContent = record.key() + " : " + record.value();
+                        System.out.println(messageContent);
+
+                        sendermess.add(messageContent);
                     }
-                };
+                    userConsole.addMessage(sendermess);
+                    return records;
 
-                Collections.sort(messages, sortRule);
-                  for (String eachMessage : messages) {
-                    String sender = eachMessage.substring(0, eachMessage.length() - 10);
-                    byte[] message = zoo.getData(queue + name + "/" + eachMessage, null, null);
-                    String messageMeans = new String(message, "UTF-8");
-
-
-                      Date date = new Date();
-                      Timestamp newTime = new Timestamp(date.getTime());
-
-                    // delete the message from the queue as soon as it is read
-                    sendermess.add("{"+ newTime +"} " + sender + ": " + messageMeans);
-                    //we will delete only when consuming one sender messages
-                    zoo.delete(queue + name + "/" + eachMessage, -1);
                 }
-                System.out.println("sending messages through watcher QUEUE");
-                userConsole.addMessage(sendermess);
-            }
-            else{
-                System.out.println("There is no queue for this user: " + name );
-                //return null;
-            }
 
-        }
-        else{
+            }catch (Exception e){e.printStackTrace();}
+            finally { consumer.close();}
+        }else{
             System.out.println(name + " cannot read messages. Go online!");
             return null;
         }
-
         System.out.println(Arrays.asList(sendermess));
-        return sendermess;
+        return null;
     }
 
-    private static <KEY, VALUE> void put(Map<KEY, List<VALUE>> map, KEY key, VALUE value) {
-        map.compute(key, (s, strings) -> strings == null ? new ArrayList<>() : strings).add(value);
-    }
 
     //check the watched event data, if 1 or 2 => successful registered.
     //remove from enoll
@@ -286,18 +263,7 @@ public class ZKWriter implements Watcher{
                 }
             }
         } else if (event.getType() == Event.EventType.NodeChildrenChanged) {
-            if (event.getPath().contains("Queue")){
-                System.out.println("New Message for" + event.getPath());
-                try {
-                    read();
-                } catch (KeeperException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            }else if (event.getPath().contains("Online")){
+            if (event.getPath().contains("Online")){
                 //refresh combobox and add new list
                 try {
                     List usersOnline= zoo.getChildren(online, false);
@@ -310,7 +276,6 @@ public class ZKWriter implements Watcher{
             }
         }
         try {
-            zoo.getChildren(queue+name, this);
             zoo.getChildren("/System/Online", this);
 
         } catch (KeeperException e) {
