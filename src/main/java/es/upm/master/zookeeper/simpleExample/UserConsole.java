@@ -149,7 +149,7 @@ public class UserConsole{
         buttonQuit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ZKWriter zkw = new ZKWriter();
+                /*ZKWriter zkw = new ZKWriter();
                 String clientName = usernameTextField.getText();
 
                 try {
@@ -161,10 +161,12 @@ public class UserConsole{
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-
+*/
                 try {
                     zkw.zooDisconnect();
                 } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                } catch (KeeperException e1) {
                     e1.printStackTrace();
                 }
 
