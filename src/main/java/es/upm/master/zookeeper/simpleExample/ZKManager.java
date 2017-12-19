@@ -507,8 +507,16 @@ public class ZKManager implements Watcher{
         manager.ZKManager();
 
 
+
+
+
+
         for(int i = 0; i < 10000; i++)
             Thread.sleep(20);
+
+
+
+
 
     }
     }

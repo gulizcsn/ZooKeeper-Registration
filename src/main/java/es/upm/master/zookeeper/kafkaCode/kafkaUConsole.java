@@ -25,14 +25,44 @@ public class kafkaUConsole {
     private JTextArea kafkaTextArea;
     private JButton kafkaRead;
     private JTextArea kafkaChat;
+    private JLabel kafkaMessageToLabel;
+    private JLabel kafkaMessageLabel;
+    private JLabel kafkaUsernameLabel;
 
     public kafkaUConsole() {
         ZKWriter zkw = new ZKWriter();
+
+        formulario.setVisible(true);
+        kafkaUsername.setVisible(true);
+        kafkaUsernameLabel.setVisible(true);
+        kafkaRegister.setVisible(true);
+        kafkaSend.setVisible(false);
+        kafkaComboBox.setVisible(false);
+        kafkaTxtField.setVisible(false);
+        kafkaTextArea.setVisible(false);
+        kafkaRead.setVisible(false);
+        kafkaChat.setVisible(false);
+        kafkaMessageToLabel.setVisible(false);
+        kafkaMessageLabel.setVisible(false);
 
         kafkaRegister.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String clientName = kafkaUsername.getText();
+
+                formulario.setVisible(true);
+                kafkaUsername.setEditable(false);
+                kafkaUsernameLabel.setVisible(false);
+                kafkaRegister.setVisible(false);
+                kafkaSend.setVisible(true);
+                kafkaComboBox.setVisible(true);
+                kafkaTxtField.setVisible(false);
+                kafkaTextArea.setVisible(true);
+                kafkaRead.setVisible(true);
+                kafkaChat.setVisible(true);
+                kafkaMessageToLabel.setVisible(true);
+                kafkaMessageLabel.setVisible(true);
+
 
                 try {
                     zkw.ZKWriter(clientName, kafkaUConsole.this);
@@ -66,7 +96,8 @@ public class kafkaUConsole {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
-                String receiver = kafkaTxtField.getText();
+                //String receiver = kafkaTxtField.getText();
+                String receiver = kafkaComboBox.getSelectedItem().toString();
                 String message = kafkaTextArea.getText();
                 try {
                     zkw.send(receiver, message);
@@ -120,6 +151,23 @@ public class kafkaUConsole {
             }
         });
 
+        kafkaComboBox.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+
+                List <String> childrenOnlineUsers = null;
+                try {
+                    childrenOnlineUsers = zkw.zoo.getChildren("/System/Online", false);
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+
+                kafkaComboBox.setModel(new DefaultComboBoxModel(childrenOnlineUsers.toArray()));
+            }
+        });
     }
         public void addMessage(List<String> messages){
 

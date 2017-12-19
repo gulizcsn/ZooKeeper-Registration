@@ -166,8 +166,6 @@ public class UserConsole{
                     zkw.zooDisconnect();
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
-                } catch (KeeperException e1) {
-                    e1.printStackTrace();
                 }
 
                 System.exit(0);
