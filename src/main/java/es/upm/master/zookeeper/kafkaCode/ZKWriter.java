@@ -28,7 +28,8 @@ public class ZKWriter implements Watcher{
 
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
-    public kafkaUConsole userConsole;
+    public static kafkaUConsole userConsole;
+
 
     interface Control {
         byte[] NEW = "-1".getBytes();
@@ -41,11 +42,12 @@ public class ZKWriter implements Watcher{
         this.zoo = zooConnect();    // Connects to ZooKeeper service
         this.name=user;
         userConsole=userC;
-    }
 
+    }
 
     public void zooDisconnect() throws InterruptedException, KeeperException {
         quit();
+        //Thread.sleep(500);
         zoo.close();
     };
 
@@ -162,13 +164,9 @@ public class ZKWriter implements Watcher{
             System.out.println("SENDER NOT ONLINE");
         }}
 
-//ConsumerRecords<String, String>
-    public ConsumerRecords<String, String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        List<String> sendermess = new ArrayList<String>();
-        //first check if sender is online...
-        stat= zoo.exists(online+name, false);
-        if (stat!=null){
-            //System.out.println("This guy is online and wants to read messages: " + name );
+    public List<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+
+        //if (zoo.exists(online+name, false)!=null){
             System.out.println("this guy wants to read  "+ name);
 
             Properties props = new Properties();
@@ -182,40 +180,39 @@ public class ZKWriter implements Watcher{
             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
             ConsumerRecords<String, String> records;
             String messageContent = null;
-            try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
+
+        try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
                 while (true) {
+                    List<String> sendermess = new ArrayList<String>();
                     records = consumer.poll(200);
-                    System.out.println("This are the records " + records );
 
                     for (ConsumerRecord<String, String> record : records){
 
                         System.out.println("This are the records " + records );
 
-                        System.out.print("Topic: " + record.topic() + ", ");
-                        System.out.print("Partition: " + record.partition() + ", ");
-                        System.out.print("Key: " + record.key() + ", ");
-                        System.out.println("Value: " + record.value() + ", ");
-
+                       // System.out.print("Topic: " + record.topic() + ", ");
+                        //System.out.print("Partition: " + record.partition() + ", ");
+                        //System.out.print("Key: " + record.key() + ", ");
+                        //System.out.println("Value: " + record.value() + ", ");
 
                         messageContent = record.key() + " : " + record.value();
                         System.out.println(messageContent);
 
                         sendermess.add(messageContent);
                     }
-                    userConsole.addMessage(sendermess);
-                    return records;
+                    //userConsole.addMessage(sendermess);
+                   return sendermess;
 
                 }
 
-            }catch (Exception e){e.printStackTrace();}
+            }catch (IllegalArgumentException e){
+                e.printStackTrace();
+            }
             finally { consumer.close();}
-        }else{
-            System.out.println(name + " cannot read messages. Go online!");
+
             return null;
         }
-        System.out.println(Arrays.asList(sendermess));
-        return null;
-    }
+
 
 
     //check the watched event data, if 1 or 2 => successful registered.
@@ -288,8 +285,11 @@ public class ZKWriter implements Watcher{
                 }
             }
         }
+
         try {
-            zoo.getChildren("/System/Online", this);
+            if (zoo.exists("/System/Online", false)!=null) {
+                zoo.getChildren("/System/Online", this);
+            }
 
         } catch (KeeperException.ConnectionLossException e) {
             //System.exit(0);
