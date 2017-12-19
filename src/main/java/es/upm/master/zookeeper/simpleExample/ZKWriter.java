@@ -37,27 +37,25 @@ public class ZKWriter implements Watcher{
     }
 
 
-    public void zooDisconnect() throws InterruptedException {
-
+    public void zooDisconnect() throws InterruptedException, KeeperException {
+        quit();
         zoo.close();
-    };
+    }
 
 
     public void create() throws KeeperException, InterruptedException {
 
         String path = enroll + name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-
         //first we check if node exists
 
         if (zoo.exists(path, false) != null) {
             //if exists
             System.out.println("User already registered" + name);
         } else {
-
             System.out.println("User not registered, proceeding to enroll" + name);
 //            System.out.println("this is the path" + path);
-            //creates the first node
+                //creates the first node
             try {
                 zoo.create(path,ZKWriter.Control.NEW , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 //Setting watcher if state  of Control changes
@@ -75,16 +73,21 @@ public class ZKWriter implements Watcher{
 
     public void quit() throws KeeperException, InterruptedException {
         String path = quit + name;
+        String pathreg= registry+ name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-        if (zoo.exists(path, false) != null) {
-            System.out.println("User found inside reg- creating node under quit");
+        if(zoo.exists(pathreg, false) != null){
+            if (zoo.exists(path, false) == null) {
+            System.out.println("Procesding to quit- creating node under quit");
             //create the node who wants to quit the system
             zoo.create(path, ZKWriter.Control.NEW , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             //Setting watcher if state  of Control changes
             zoo.exists(path , (Watcher) this);
 
+            }else{
+            System.out.println("Cant quit, already quitting" + path);
+            }
         }else{
-            System.out.println("User can not be found in the system under path" + path);
+            System.out.println("Cant quit a user not registered" + pathreg);
         }
     }
 
@@ -309,7 +312,9 @@ public class ZKWriter implements Watcher{
             }
         }
         try {
-            zoo.getChildren(queue+name, this);
+            if ((zoo.exists(queue+name, false))!=null){
+                zoo.getChildren(queue+name, this);
+            }
             zoo.getChildren("/System/Online", this);
 
         } catch (KeeperException e) {
@@ -343,43 +348,5 @@ public class ZKWriter implements Watcher{
         connectionLatch.await(10, TimeUnit.SECONDS);
         return zoo;
     }
-/*
-    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
-        ZKWriter zkw = new ZKWriter();
-        zkw.ZKWriter("Cris", this);
-        zkw.create();
-        Thread.sleep(1000);
-        zkw.goOnline();
 
-
-        ZKWriter zkw1 = new ZKWriter();
-        zkw1.ZKWriter("BELUSMOR", this);
-        zkw1.create();
-        Thread.sleep(1000);
-        zkw1.goOnline();
-        Thread.sleep(1000);
-
-
-        ZKWriter zkw2 = new ZKWriter();
-        zkw2.ZKWriter("Ahmet", this);
-        zkw2.create();
-        Thread.sleep(1000);
-        zkw2.goOnline();
-
-        zkw1.send("Cris", "PERRACA");
-        Thread.sleep(1000);
-        zkw2.send("Cris","Helloooo I'm Ahmet");
-        Thread.sleep(1000);
-        zkw1.send("Cris", "bebegim");
-
-        Thread.sleep(50000);
-        //zkw.zooDisconnect();
-        //zkw.goOffline();
-        //Thread.sleep(50000);
-        zkw.read();
-       // System.out.println(message);
-
-        Thread.sleep(50000);
-    }
-*/
 }

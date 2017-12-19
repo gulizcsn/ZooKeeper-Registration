@@ -180,8 +180,7 @@ public class kafkaUConsole {
 
 
         }
-
-
+        //TODO: add Go offline and quit. 
 
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {

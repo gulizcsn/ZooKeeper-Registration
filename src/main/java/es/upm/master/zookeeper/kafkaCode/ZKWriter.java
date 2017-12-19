@@ -43,8 +43,8 @@ public class ZKWriter implements Watcher{
     }
 
 
-    public void zooDisconnect() throws InterruptedException {
-
+    public void zooDisconnect() throws InterruptedException, KeeperException {
+        quit();
         zoo.close();
     };
 
@@ -81,16 +81,21 @@ public class ZKWriter implements Watcher{
 
     public void quit() throws KeeperException, InterruptedException {
         String path = quit + name;
+        String pathreg= registry+ name;
         //we check if node exists under the registry node "/System/Registry" with the status Stat, not listing children
-        if (zoo.exists(path, false) != null) {
-            System.out.println("User found inside reg- creating node under quit");
-            //create the node who wants to quit the system
-            zoo.create(path, ZKWriter.Control.NEW , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            //Setting watcher if state  of Control changes
-            zoo.exists(path , (Watcher) this);
+        if(zoo.exists(pathreg, false) != null){
+            if (zoo.exists(path, false) == null) {
+                System.out.println("Procesding to quit- creating node under quit");
+                //create the node who wants to quit the system
+                zoo.create(path, ZKWriter.Control.NEW , ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                //Setting watcher if state  of Control changes
+                zoo.exists(path , (Watcher) this);
 
+            }else{
+                System.out.println("Cant quit, already quitting" + path);
+            }
         }else{
-            System.out.println("User can not be found in the system under path" + path);
+            System.out.println("Cant quit a user not registered" + pathreg);
         }
     }
 
@@ -154,14 +159,14 @@ public class ZKWriter implements Watcher{
             System.out.println("SENDER NOT ONLINE");
         }}
 
-
+//ConsumerRecords<String, String>
     public ConsumerRecords<String, String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
         List<String> sendermess = new ArrayList<String>();
         //first check if sender is online...
-
         stat= zoo.exists(online+name, false);
         if (stat!=null){
             //System.out.println("This guy is online and wants to read messages: " + name );
+            System.out.println("this guy wants to read  "+ name);
 
             Properties props = new Properties();
             props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -172,18 +177,22 @@ public class ZKWriter implements Watcher{
             props.put("value.deserializer",
                     "org.apache.kafka.common.serialization.StringDeserializer");
             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
-            //ConsumerRecords<String, String> records;
+            ConsumerRecords<String, String> records;
             String messageContent = null;
             try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
                 while (true) {
-                    ConsumerRecords<String, String> records = consumer.poll(200);
-                    System.out.println("This guy is online and wants to read messages222: " + records );
+                    records = consumer.poll(200);
+                    System.out.println("This are the records " + records );
 
                     for (ConsumerRecord<String, String> record : records){
+
+                        System.out.println("This are the records " + records );
+
                         System.out.print("Topic: " + record.topic() + ", ");
                         System.out.print("Partition: " + record.partition() + ", ");
                         System.out.print("Key: " + record.key() + ", ");
                         System.out.println("Value: " + record.value() + ", ");
+
                         messageContent = record.key() + " : " + record.value();
                         System.out.println(messageContent);
 
