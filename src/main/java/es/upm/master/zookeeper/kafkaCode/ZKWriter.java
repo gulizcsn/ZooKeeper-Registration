@@ -9,6 +9,7 @@ import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -147,7 +148,11 @@ public class ZKWriter implements Watcher{
                 KafkaProducer<String, String> prod = new KafkaProducer<String, String>(props);
                 String topic = receiver.toString();
                 int partition = 0;
-                String key = "From: " + name.toString();
+
+                Date date = new Date();
+                Timestamp newTime = new Timestamp(date.getTime());
+                String key = "{"+ newTime +"} "+ " From: " + name.toString();
+
                 String value = msg.toString();
                 prod.send(new ProducerRecord<String, String>(topic,partition,key, value));
                 prod.close();
@@ -190,6 +195,7 @@ public class ZKWriter implements Watcher{
                         System.out.print("Partition: " + record.partition() + ", ");
                         System.out.print("Key: " + record.key() + ", ");
                         System.out.println("Value: " + record.value() + ", ");
+
 
                         messageContent = record.key() + " : " + record.value();
                         System.out.println(messageContent);

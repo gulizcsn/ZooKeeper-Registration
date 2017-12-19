@@ -12,17 +12,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+      <file leaf-file-name="ZKWriter.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="495">
+              <caret line="199" column="41" lean-forward="false" selection-start-line="199" selection-start-column="41" selection-end-line="199" selection-end-column="41" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="kafkaUConsole.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUConsole.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="369">
-              <caret line="58" column="46" lean-forward="false" selection-start-line="58" selection-start-column="46" selection-end-line="58" selection-end-column="46" />
+            <state relative-caret-position="1344">
+              <caret line="77" column="46" lean-forward="false" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="46" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#4048#4740#0" expanded="true" />
-                <element signature="e#4739#4740#0" expanded="true" />
-                <element signature="e#5310#5934#0" expanded="true" />
-                <element signature="e#5933#5934#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -35,23 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ZKWriter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="642">
-              <caret line="311" column="1" lean-forward="false" selection-start-line="311" selection-start-column="1" selection-end-line="311" selection-end-column="2" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ZKManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-69">
-              <caret line="499" column="30" lean-forward="false" selection-start-line="499" selection-start-column="30" selection-end-line="499" selection-end-column="30" />
+            <state relative-caret-position="21">
+              <caret line="499" column="30" lean-forward="true" selection-start-line="499" selection-start-column="30" selection-end-line="499" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -60,8 +56,8 @@
       <file leaf-file-name="ZKWriter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="960">
-              <caret line="376" column="10" lean-forward="false" selection-start-line="376" selection-start-column="10" selection-end-line="376" selection-end-column="26" />
+            <state relative-caret-position="166">
+              <caret line="206" column="47" lean-forward="false" selection-start-line="206" selection-start-column="40" selection-end-line="206" selection-end-column="47" />
               <folding />
             </state>
           </provider>
@@ -77,8 +73,8 @@
       <file leaf-file-name="UserConsole.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="292">
-              <caret line="87" column="16" lean-forward="false" selection-start-line="87" selection-start-column="16" selection-end-line="87" selection-end-column="53" />
+            <state relative-caret-position="179">
+              <caret line="107" column="25" lean-forward="false" selection-start-line="107" selection-start-column="25" selection-end-line="107" selection-end-column="25" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -86,11 +82,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ZKManager.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ZKManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-174">
-              <caret line="315" column="0" lean-forward="false" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
+            <state relative-caret-position="321">
+              <caret line="340" column="35" lean-forward="true" selection-start-line="340" selection-start-column="35" selection-end-line="340" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -129,6 +125,7 @@
       <find>userComboBox</find>
       <find>kafkaTxtField</find>
       <find>usernameTextField</find>
+      <find>newTime</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -154,11 +151,11 @@
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUConsole.form" />
-        <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/Kafka.java" />
         <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUConsole.java" />
+        <option value="$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java" />
       </list>
     </option>
   </component>
@@ -185,7 +182,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -267,6 +263,7 @@
       </pane>
       <pane id="PackagesPane" />
       <pane id="AndroidView" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -481,9 +478,9 @@
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Application.kafkaUConsole" />
-        <item index="1" class="java.lang.String" itemvalue="Application.ZKManager (1)" />
-        <item index="2" class="java.lang.String" itemvalue="Application.UserConsole" />
-        <item index="3" class="java.lang.String" itemvalue="Application.ZKManager" />
+        <item index="1" class="java.lang.String" itemvalue="Application.UserConsole" />
+        <item index="2" class="java.lang.String" itemvalue="Application.ZKManager" />
+        <item index="3" class="java.lang.String" itemvalue="Application.ZKManager (1)" />
         <item index="4" class="java.lang.String" itemvalue="Application.Kafka (1)" />
       </list>
     </recent_temporary>
@@ -531,14 +528,14 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32352942" sideWeight="0.5021482" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3227633" sideWeight="0.5042965" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3227633" sideWeight="0.49785176" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3227633" sideWeight="0.49570355" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32466063" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22234157" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22556391" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -577,14 +574,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/SimpleWatcher.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1602">
-          <caret line="120" column="11" lean-forward="false" selection-start-line="120" selection-start-column="11" selection-end-line="120" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1224">
@@ -603,14 +593,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/SimpleWatcher.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1602">
-          <caret line="120" column="11" lean-forward="false" selection-start-line="120" selection-start-column="11" selection-end-line="120" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/CreateTree.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -630,14 +613,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/SimpleWatcher.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1602">
-          <caret line="120" column="11" lean-forward="false" selection-start-line="120" selection-start-column="11" selection-end-line="120" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
@@ -657,14 +633,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/SimpleWatcher.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1602">
-          <caret line="120" column="11" lean-forward="false" selection-start-line="120" selection-start-column="11" selection-end-line="120" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -675,14 +644,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Test.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/SimpleWatcher.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2121">
-          <caret line="111" column="11" lean-forward="true" selection-start-line="111" selection-start-column="11" selection-end-line="111" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
@@ -719,52 +681,54 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUserConsole.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/UserConsole.java" />
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/Kafka.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/Kafka.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java" />
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUConsole.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1344">
+          <caret line="77" column="46" lean-forward="false" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="46" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="321">
+          <caret line="340" column="35" lean-forward="true" selection-start-line="340" selection-start-column="35" selection-end-line="340" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.form">
       <provider selected="true" editor-type-id="ui-designer">
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="87" column="16" lean-forward="false" selection-start-line="87" selection-start-column="16" selection-end-line="87" selection-end-column="53" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-69">
-          <caret line="499" column="30" lean-forward="false" selection-start-line="499" selection-start-column="30" selection-end-line="499" selection-end-column="30" />
+        <state relative-caret-position="21">
+          <caret line="499" column="30" lean-forward="true" selection-start-line="499" selection-start-column="30" selection-end-line="499" selection-end-column="30" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="642">
-          <caret line="311" column="1" lean-forward="false" selection-start-line="311" selection-start-column="1" selection-end-line="311" selection-end-column="2" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/ZKWriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="376" column="10" lean-forward="false" selection-start-line="376" selection-start-column="10" selection-end-line="376" selection-end-column="26" />
+        <state relative-caret-position="166">
+          <caret line="206" column="47" lean-forward="false" selection-start-line="206" selection-start-column="40" selection-end-line="206" selection-end-column="47" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/Kafka.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/UserConsole.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="179">
+          <caret line="107" column="25" lean-forward="false" selection-start-line="107" selection-start-column="25" selection-end-line="107" selection-end-column="25" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -773,33 +737,13 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/simpleExample/WelcomeInterface.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKWriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1869">
-          <caret line="120" column="11" lean-forward="false" selection-start-line="120" selection-start-column="11" selection-end-line="120" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/kafkaUConsole.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="369">
-          <caret line="58" column="46" lean-forward="false" selection-start-line="58" selection-start-column="46" selection-end-line="58" selection-end-column="46" />
+        <state relative-caret-position="495">
+          <caret line="199" column="41" lean-forward="false" selection-start-line="199" selection-start-column="41" selection-end-line="199" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4048#4740#0" expanded="true" />
-            <element signature="e#4739#4740#0" expanded="true" />
-            <element signature="e#5310#5934#0" expanded="true" />
-            <element signature="e#5933#5934#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/es/upm/master/zookeeper/kafkaCode/ZKManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-174">
-          <caret line="315" column="0" lean-forward="false" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
