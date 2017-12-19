@@ -28,11 +28,28 @@ public class kafkaUConsole {
     private JLabel kafkaMessageToLabel;
     private JLabel kafkaMessageLabel;
     private JLabel kafkaUsernameLabel;
+    private JButton logOutButton;
+    private JButton quitButton;
 
     public kafkaUConsole() {
         ZKWriter zkw = new ZKWriter();
 
-        formulario.setVisible(true);
+       // formulario.setVisible(true);
+        kafkaUsernameLabel.setVisible(false);
+        kafkaRegister.setVisible(true);
+        kafkaSend.setVisible(false);
+        kafkaComboBox.setVisible(false);
+        kafkaTxtField.setVisible(false);
+        kafkaTextArea.setVisible(false);
+        kafkaRead.setVisible(false);
+        kafkaChat.setVisible(false);
+        kafkaMessageToLabel.setVisible(false);
+        kafkaMessageLabel.setVisible(false);
+        quitButton.setVisible(true);
+        logOutButton.setVisible(false);
+
+
+
         kafkaUsername.setVisible(true);
         kafkaUsernameLabel.setVisible(true);
         kafkaRegister.setVisible(true);
@@ -44,6 +61,8 @@ public class kafkaUConsole {
         kafkaChat.setVisible(false);
         kafkaMessageToLabel.setVisible(false);
         kafkaMessageLabel.setVisible(false);
+        logOutButton.setVisible(false);
+        quitButton.setVisible(true);
 
         kafkaRegister.addActionListener(new ActionListener() {
             @Override
@@ -62,6 +81,9 @@ public class kafkaUConsole {
                 kafkaChat.setVisible(true);
                 kafkaMessageToLabel.setVisible(true);
                 kafkaMessageLabel.setVisible(true);
+                logOutButton.setVisible(true);
+                quitButton.setVisible(false);
+
 
 
                 try {
@@ -168,6 +190,50 @@ public class kafkaUConsole {
                 kafkaComboBox.setModel(new DefaultComboBoxModel(childrenOnlineUsers.toArray()));
             }
         });
+        logOutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+                    zkw.goOffline();
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+
+                //formulario.setVisible(true);
+                kafkaUsernameLabel.setVisible(true);
+                kafkaRegister.setVisible(true);
+                kafkaSend.setVisible(false);
+                kafkaComboBox.setVisible(false);
+                kafkaTxtField.setVisible(false);
+                kafkaTextArea.setVisible(false);
+                kafkaRead.setVisible(false);
+                kafkaChat.setVisible(false);
+                kafkaMessageToLabel.setVisible(false);
+                kafkaMessageLabel.setVisible(false);
+                quitButton.setVisible(true);
+                logOutButton.setVisible(false);
+
+
+            }
+        });
+        quitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+                    zkw.zooDisconnect();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                }
+
+                System.exit(0);
+            }
+        });
     }
         public void addMessage(List<String> messages){
 
@@ -180,7 +246,7 @@ public class kafkaUConsole {
 
 
         }
-        //TODO: add Go offline and quit. 
+        //TODO: add Go offline and quit.
 
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {

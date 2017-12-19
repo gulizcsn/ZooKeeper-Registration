@@ -119,8 +119,6 @@ public class ZKWriter implements Watcher{
         if (zoo.exists(path, false)!=null){
             System.out.println("user "+name+"disconnecting from online");
             zoo.delete(path,-1);
-            //create the node who wants to quit the system
-            //zoo.setData(path, Test.Control.EXISTS, -1);
 
         }else {
             //create ephemeral node
@@ -130,8 +128,8 @@ public class ZKWriter implements Watcher{
 
 
     public void send(String receiver, String msg) throws KeeperException, InterruptedException, UnsupportedEncodingException {
-        Stat statReceiver= zoo.exists(online+name, false);
 
+        Stat statReceiver= zoo.exists(online+name, false);
         //creamos nodo ephemeral sequential under the receiver. but first check if he is connected
             if(statReceiver!=null) {
                 //System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
@@ -287,9 +285,11 @@ public class ZKWriter implements Watcher{
         try {
             zoo.getChildren("/System/Online", this);
 
-        } catch (KeeperException e) {
-            e.printStackTrace();
+        } catch (KeeperException.ConnectionLossException e) {
+            //System.exit(0);
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (KeeperException e) {
             e.printStackTrace();
         }
     }
