@@ -30,6 +30,7 @@ public class kafkaUConsole extends Thread {
     private JLabel kafkaUsernameLabel;
     private JButton logOutButton;
     private JButton quitButton;
+    private JLabel chatLabel;
     public static String usernow;
 
     ZKWriter zkw = new ZKWriter();
@@ -50,6 +51,7 @@ public class kafkaUConsole extends Thread {
         kafkaMessageLabel.setVisible(false);
         quitButton.setVisible(true);
         logOutButton.setVisible(false);
+        chatLabel.setVisible(false);
 
 
 
@@ -86,6 +88,7 @@ public class kafkaUConsole extends Thread {
                 kafkaMessageLabel.setVisible(true);
                 logOutButton.setVisible(true);
                 quitButton.setVisible(false);
+
 
 
 
@@ -247,6 +250,7 @@ public class kafkaUConsole extends Thread {
 
         public void addMessage(List<String> messages){
         kafkaChat.setVisible(true);
+        chatLabel.setVisible(true);
 
             for (String received : messages) {
                 System.out.println("message singlemessage"+ received);

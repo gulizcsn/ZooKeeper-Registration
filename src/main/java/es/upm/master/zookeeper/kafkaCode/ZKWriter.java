@@ -25,6 +25,7 @@ public class ZKWriter implements Watcher{
     private String registry = "/System/Registry/";
     private String quit = "/System/Request/Quit/";
     private String online = "/System/Online/";
+    private List<String> sendermess = new ArrayList<String>();
 
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
@@ -183,8 +184,8 @@ public class ZKWriter implements Watcher{
 
         try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
                 while (true) {
-                    List<String> sendermess = new ArrayList<String>();
-                    records = consumer.poll(200);
+
+                    records = consumer.poll(500);
 
                     for (ConsumerRecord<String, String> record : records){
 
