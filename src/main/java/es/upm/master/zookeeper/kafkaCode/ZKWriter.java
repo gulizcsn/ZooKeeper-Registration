@@ -26,7 +26,7 @@ public class ZKWriter implements Watcher{
     private String quit = "/System/Request/Quit/";
     private String online = "/System/Online/";
     private List<String> sendermess = new ArrayList<String>();
-    private String kafkaIpPortName;
+    private static String kafkaIpPortName;
 
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
@@ -140,10 +140,17 @@ public class ZKWriter implements Watcher{
                 //System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
                 //zoo.create(queue + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
+                System.out.println(kafkaIpPortName);
+                System.out.println(kafkaIpPortName);
+                System.out.println(kafkaIpPortName);
+                System.out.println(kafkaIpPortName);
+                System.out.println(kafkaIpPortName);
+                System.out.println(kafkaIpPortName);
+
 
                 Properties props = new Properties();
-                //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaIpPortName);
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
+                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaIpPortName);
+                //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
                 props.put("acks", "all");
                 props.put("retries", 0);
                 props.put("batch.size", 16384);
@@ -180,8 +187,8 @@ public class ZKWriter implements Watcher{
 
 
             Properties props = new Properties();
-            //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaIpPortName);
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaIpPortName);
+            //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
             props.put("group.id", "MYGROUP");
             props.put("enable.auto.commit", "true");props.put("auto.commit.interval.ms",
                     "1000");props.put("key.deserializer",
@@ -325,12 +332,12 @@ public class ZKWriter implements Watcher{
         String ipPortName = sc.next();
         System.out.println("Your IP:Port for Zookeeper, WRITER will be: " + ipPortName);
 
-        /*// Ask user in console for IP and port of KAFKA CONSUMER/PRODUCER
-        Scanner sc = new Scanner(System.in);
+        // Ask user in console for IP and port of KAFKA CONSUMER/PRODUCER
+        //Scanner sc = new Scanner(System.in);
         System.out.println("******** WELCOME TO KAFKA CONSUMER/PRODUCER ********");
         System.out.print("Please provide the IP:Port of KAFKA for CONSUMER/PRODUCER (Example 127.0.0.1:9092) = ");
-        String kafkaIpPortName = sc.next();
-        System.out.println("Your IP:Port for KAFKA, CONSUMER/PRODUCER will be: " + kafkaIpPortName);*/
+        kafkaIpPortName = sc.next();
+        System.out.println("Your IP:Port for KAFKA, CONSUMER/PRODUCER will be: " + kafkaIpPortName);
 
         String host = ipPortName;
         int sessionTimeout = 3000;
