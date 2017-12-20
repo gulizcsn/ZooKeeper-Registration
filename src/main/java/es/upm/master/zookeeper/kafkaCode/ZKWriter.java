@@ -26,6 +26,7 @@ public class ZKWriter implements Watcher{
     private String quit = "/System/Request/Quit/";
     private String online = "/System/Online/";
     private List<String> sendermess = new ArrayList<String>();
+    private String kafkaIpPortName;
 
    // private Map<String, List<String>> sendermess = new HashMap<String, List<String>>();
     public String name;
@@ -138,8 +139,11 @@ public class ZKWriter implements Watcher{
             if(statReceiver!=null) {
                 //System.out.println("Receiver" + receiver+ " is ONLINE, so we will send the message");
                 //zoo.create(queue + receiver, "znode".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+
                 Properties props = new Properties();
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+                //props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaIpPortName);
+                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
                 props.put("acks", "all");
                 props.put("retries", 0);
                 props.put("batch.size", 16384);
@@ -165,14 +169,20 @@ public class ZKWriter implements Watcher{
             System.out.println("SENDER NOT ONLINE");
         }}
 
-    public List<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
-
-        //if (zoo.exists(online+name, false)!=null){
+    //ConsumerRecords<String, String>
+    public ConsumerRecords<String, String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+        List<String> sendermess = new ArrayList<String>();
+        //first check if sender is online...
+        stat= zoo.exists(online+name, false);
+        if (stat!=null){
+            //System.out.println("This guy is online and wants to read messages: " + name );
             System.out.println("this guy wants to read  "+ name);
 
+
             Properties props = new Properties();
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                    "localhost:9092");props.put("group.id", "MYGROUP");
+            //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaIpPortName);
+            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+            props.put("group.id", "MYGROUP");
             props.put("enable.auto.commit", "true");props.put("auto.commit.interval.ms",
                     "1000");props.put("key.deserializer",
                     "org.apache.kafka.common.serialization.StringDeserializer");
@@ -181,38 +191,40 @@ public class ZKWriter implements Watcher{
             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
             ConsumerRecords<String, String> records;
             String messageContent = null;
-
-        try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
+            try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
                 while (true) {
-
-                    records = consumer.poll(500);
+                    records = consumer.poll(200);
+                    System.out.println("This are the records " + records );
 
                     for (ConsumerRecord<String, String> record : records){
 
                         System.out.println("This are the records " + records );
 
-                       // System.out.print("Topic: " + record.topic() + ", ");
-                        //System.out.print("Partition: " + record.partition() + ", ");
-                        //System.out.print("Key: " + record.key() + ", ");
-                        //System.out.println("Value: " + record.value() + ", ");
+                        System.out.print("Topic: " + record.topic() + ", ");
+                        System.out.print("Partition: " + record.partition() + ", ");
+                        System.out.print("Key: " + record.key() + ", ");
+                        System.out.println("Value: " + record.value() + ", ");
+
 
                         messageContent = record.key() + " : " + record.value();
                         System.out.println(messageContent);
 
                         sendermess.add(messageContent);
                     }
-                    //userConsole.addMessage(sendermess);
-                   return sendermess;
+                    userConsole.addMessage(sendermess);
+                    return records;
 
                 }
 
-            }catch (IllegalArgumentException e){
-                e.printStackTrace();
-            }
+            }catch (Exception e){e.printStackTrace();}
             finally { consumer.close();}
-
+        }else{
+            System.out.println(name + " cannot read messages. Go online!");
             return null;
         }
+        System.out.println(Arrays.asList(sendermess));
+        return null;
+    }
 
 
 
@@ -305,7 +317,22 @@ public class ZKWriter implements Watcher{
 
     static ZooKeeper zooConnect() throws IOException, InterruptedException {
 
-        String host = "localhost:2181";
+
+        // Ask user in console for IP and port of Zookeeper WRITER
+        Scanner sc = new Scanner(System.in);
+        System.out.println("******** WELCOME TO ZOOKEEPER ********");
+        System.out.print("Please provide the IP:Port of Zookeeper for WRITER (Example 127.0.0.1:2181) = ");
+        String ipPortName = sc.next();
+        System.out.println("Your IP:Port for Zookeeper, WRITER will be: " + ipPortName);
+
+        /*// Ask user in console for IP and port of KAFKA CONSUMER/PRODUCER
+        Scanner sc = new Scanner(System.in);
+        System.out.println("******** WELCOME TO KAFKA CONSUMER/PRODUCER ********");
+        System.out.print("Please provide the IP:Port of KAFKA for CONSUMER/PRODUCER (Example 127.0.0.1:9092) = ");
+        String kafkaIpPortName = sc.next();
+        System.out.println("Your IP:Port for KAFKA, CONSUMER/PRODUCER will be: " + kafkaIpPortName);*/
+
+        String host = ipPortName;
         int sessionTimeout = 3000;
         final CountDownLatch connectionLatch = new CountDownLatch(1);
 
@@ -325,43 +352,4 @@ public class ZKWriter implements Watcher{
         connectionLatch.await(10, TimeUnit.SECONDS);
         return zoo;
     }
-/*
-    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
-        ZKWriter zkw = new ZKWriter();
-        zkw.ZKWriter("Cris", this);
-        zkw.create();
-        Thread.sleep(1000);
-        zkw.goOnline();
-
-
-        ZKWriter zkw1 = new ZKWriter();
-        zkw1.ZKWriter("BELUSMOR", this);
-        zkw1.create();
-        Thread.sleep(1000);
-        zkw1.goOnline();
-        Thread.sleep(1000);
-
-
-        ZKWriter zkw2 = new ZKWriter();
-        zkw2.ZKWriter("Ahmet", this);
-        zkw2.create();
-        Thread.sleep(1000);
-        zkw2.goOnline();
-
-        zkw1.send("Cris", "PERRACA");
-        Thread.sleep(1000);
-        zkw2.send("Cris","Helloooo I'm Ahmet");
-        Thread.sleep(1000);
-        zkw1.send("Cris", "bebegim");
-
-        Thread.sleep(50000);
-        //zkw.zooDisconnect();
-        //zkw.goOffline();
-        //Thread.sleep(50000);
-        zkw.read();
-       // System.out.println(message);
-
-        Thread.sleep(50000);
-    }
-*/
 }

@@ -480,7 +480,15 @@ public class ZKManager implements Watcher{
 
     static ZooKeeper zooConnect() throws IOException, InterruptedException {
 
-        String host = "localhost:2181";
+
+        // Ask user in console for IP and port of Zookeeper MANAGER
+        Scanner sc = new Scanner(System.in);
+        System.out.println("******** WELCOME TO ZOOKEEPER ********");
+        System.out.print("Please provide the IP:Port of Zookeeper for MANAGER (Example 127.0.0.1:2181) = ");
+        String ipPortName = sc.next();
+        System.out.println("Your IP:Port for Zookeeper, MANAGER will be: " + ipPortName);
+
+        String host = ipPortName;
         int sessionTimeout = 3000;
         final CountDownLatch connectionLatch = new CountDownLatch(1);
 
@@ -505,10 +513,6 @@ public class ZKManager implements Watcher{
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         ZKManager manager = new ZKManager();
         manager.ZKManager();
-
-
-
-
 
 
         for(int i = 0; i < 10000; i++)

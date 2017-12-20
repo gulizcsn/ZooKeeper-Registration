@@ -142,6 +142,7 @@ public class UserConsole{
                 chatlabel.setVisible(false);
                 ConsoleReading.setVisible(false);
                 userComboBox.setVisible(false);
+                JScrollTextArea.setVisible(false);
             }
         });
 

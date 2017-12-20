@@ -30,7 +30,9 @@ public class kafkaUConsole extends Thread {
     private JLabel kafkaUsernameLabel;
     private JButton logOutButton;
     private JButton quitButton;
+    private JButton kafkaReadButton;
     private JLabel chatLabel;
+    private JScrollPane kafkaJScrollPane;
     public static String usernow;
 
     ZKWriter zkw = new ZKWriter();
@@ -51,9 +53,6 @@ public class kafkaUConsole extends Thread {
         kafkaMessageLabel.setVisible(false);
         quitButton.setVisible(true);
         logOutButton.setVisible(false);
-        chatLabel.setVisible(false);
-
-
 
         kafkaUsername.setVisible(true);
         kafkaUsernameLabel.setVisible(true);
@@ -67,6 +66,9 @@ public class kafkaUConsole extends Thread {
         kafkaMessageLabel.setVisible(false);
         logOutButton.setVisible(false);
         quitButton.setVisible(true);
+        chatLabel.setVisible(false);
+        kafkaReadButton.setVisible(false);
+        kafkaJScrollPane.setVisible(false);
 
 
         kafkaRegister.addActionListener(new ActionListener() {
@@ -88,6 +90,9 @@ public class kafkaUConsole extends Thread {
                 kafkaMessageLabel.setVisible(true);
                 logOutButton.setVisible(true);
                 quitButton.setVisible(false);
+                chatLabel.setVisible(true);
+                kafkaReadButton.setVisible(true);
+                kafkaJScrollPane.setVisible(true);
 
 
 
@@ -205,6 +210,10 @@ public class kafkaUConsole extends Thread {
                 kafkaMessageLabel.setVisible(false);
                 quitButton.setVisible(true);
                 logOutButton.setVisible(false);
+                chatLabel.setVisible(false);
+                kafkaReadButton.setVisible(false);
+                kafkaUsername.setEditable(true);
+                kafkaJScrollPane.setVisible(false);
 
 
             }
@@ -226,9 +235,29 @@ public class kafkaUConsole extends Thread {
                 System.exit(0);
             }
         });
+
+
+        kafkaReadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    zkw.read();
+                } catch (KeeperException e1) {
+                    e1.printStackTrace();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                } catch (UnsupportedEncodingException e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+        });
+
+
     }
 
-    public void run(){
+/*    public void run(){
         System.out.println("runner running");
         while (true){
             try {
@@ -246,25 +275,27 @@ public class kafkaUConsole extends Thread {
             }
         }
 
-    }
+    }*/
 
         public void addMessage(List<String> messages){
         kafkaChat.setVisible(true);
         chatLabel.setVisible(true);
 
             for (String received : messages) {
-                System.out.println("message singlemessage"+ received);
-                //TODO: WHY THE FUCK MESSAGES ARE NOT APPEARING !!!!
+                System.out.println("message single message"+ received);
                 kafkaChat.append(received);
                 kafkaChat.append("\n");
             }
         }
 
 
+
+
+
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         JFrame frames = new JFrame("ZooApp");
-        frames.setPreferredSize(new Dimension(500, 350));
-        frames.setLocation(500, 250);
+        frames.setPreferredSize(new Dimension(500, 450));
+        frames.setLocation(500, 350);
         frames.setContentPane(new kafkaUConsole().formulario);
         frames.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frames.pack();
