@@ -176,62 +176,54 @@ public class ZKWriter implements Watcher{
             System.out.println("SENDER NOT ONLINE");
         }}
 
-    //ConsumerRecords<String, String>
-    public ConsumerRecords<String, String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+
+
+    public List<String> read() throws KeeperException, InterruptedException, UnsupportedEncodingException {
+
+        //if (zoo.exists(online+name, false)!=null){
+        System.out.println("this guy wants to read  "+ name);
+
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092");props.put("group.id", "MYGROUP");
+        props.put("enable.auto.commit", "true");props.put("auto.commit.interval.ms",
+                "1000");props.put("key.deserializer",
+                "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer",
+                "org.apache.kafka.common.serialization.StringDeserializer");
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+        ConsumerRecords<String, String> records;
+        String messageContent = null;
         List<String> sendermess = new ArrayList<String>();
-        //first check if sender is online...
-        stat= zoo.exists(online+name, false);
-        if (stat!=null){
-            //System.out.println("This guy is online and wants to read messages: " + name );
-            System.out.println("this guy wants to read  "+ name);
 
+        try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
+            while (true) {
+                records = consumer.poll(200);
 
-            Properties props = new Properties();
-            props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaIpPortName);
-            //props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-            props.put("group.id", "MYGROUP");
-            props.put("enable.auto.commit", "true");props.put("auto.commit.interval.ms",
-                    "1000");props.put("key.deserializer",
-                    "org.apache.kafka.common.serialization.StringDeserializer");
-            props.put("value.deserializer",
-                    "org.apache.kafka.common.serialization.StringDeserializer");
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
-            ConsumerRecords<String, String> records;
-            String messageContent = null;
-            try{ consumer.subscribe(Arrays.asList("master2016-replicated-java",name));
-                while (true) {
-                    records = consumer.poll(200);
+                for (ConsumerRecord<String, String> record : records){
+
                     System.out.println("This are the records " + records );
 
-                    for (ConsumerRecord<String, String> record : records){
+                    // System.out.print("Topic: " + record.topic() + ", ");
+                    //System.out.print("Partition: " + record.partition() + ", ");
+                    //System.out.print("Key: " + record.key() + ", ");
+                    //System.out.println("Value: " + record.value() + ", ");
 
-                        System.out.println("This are the records " + records );
+                    messageContent = record.key() + " : " + record.value();
+                    System.out.println(messageContent);
 
-                        System.out.print("Topic: " + record.topic() + ", ");
-                        System.out.print("Partition: " + record.partition() + ", ");
-                        System.out.print("Key: " + record.key() + ", ");
-                        System.out.println("Value: " + record.value() + ", ");
-
-
-                        messageContent = record.key() + " : " + record.value();
-                        System.out.println(messageContent);
-
-                        sendermess.add(messageContent);
-                    }
-                    userConsole.addMessage(sendermess);
-                    return records;
-
+                    sendermess.add(messageContent);
                 }
-
-            }catch (Exception e){e.printStackTrace();}
-            finally { consumer.close();}
-        }else{
-            System.out.println(name + " cannot read messages. Go online!");
-            return null;
+                // userConsole.addMessage(sendermess);
+                return sendermess;
+            }
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
         }
-        System.out.println(Arrays.asList(sendermess));
+        finally { consumer.close();}
         return null;
     }
+
 
 
 

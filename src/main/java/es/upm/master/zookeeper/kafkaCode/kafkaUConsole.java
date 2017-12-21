@@ -14,6 +14,9 @@ import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class kafkaUConsole extends Thread {
     private JTextField kafkaUsername;
@@ -66,7 +69,7 @@ public class kafkaUConsole extends Thread {
         kafkaMessageLabel.setVisible(false);
         logOutButton.setVisible(false);
         quitButton.setVisible(true);
-        chatLabel.setVisible(false);
+      //  chatLabel.setVisible(false);
         kafkaReadButton.setVisible(false);
         kafkaJScrollPane.setVisible(false);
 
@@ -90,7 +93,7 @@ public class kafkaUConsole extends Thread {
                 kafkaMessageLabel.setVisible(true);
                 logOutButton.setVisible(true);
                 quitButton.setVisible(false);
-                chatLabel.setVisible(true);
+            //    chatLabel.setVisible(true);
                 kafkaReadButton.setVisible(true);
                 kafkaJScrollPane.setVisible(true);
 
@@ -125,7 +128,9 @@ public class kafkaUConsole extends Thread {
 
                 kafkaUConsole.usernow=kafkaUsername.getText();
                 try {
+
                     new kafkaUConsole().start();
+                    System.out.println("hello");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -210,7 +215,7 @@ public class kafkaUConsole extends Thread {
                 kafkaMessageLabel.setVisible(false);
                 quitButton.setVisible(true);
                 logOutButton.setVisible(false);
-                chatLabel.setVisible(false);
+           //     chatLabel.setVisible(false);
                 kafkaReadButton.setVisible(false);
                 kafkaUsername.setEditable(true);
                 kafkaJScrollPane.setVisible(false);
@@ -236,7 +241,7 @@ public class kafkaUConsole extends Thread {
             }
         });
 
-
+/*
         kafkaReadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -252,20 +257,42 @@ public class kafkaUConsole extends Thread {
                 }
 
             }
-        });
+        });*/
 
 
     }
 
-/*    public void run(){
-        System.out.println("runner running");
+    public void run(){
+        Logger logger= Logger.getLogger("file");
+        FileHandler fh;
+       // if(usernow!=null)
+        try {
+            fh= new FileHandler("Log" + usernow+".log");
+            zkw.ZKWriter(usernow, this);
+            System.out.println("hey");
+            logger.addHandler(fh);
+            SimpleFormatter formatter =new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        }
+
         while (true){
             try {
-                zkw.ZKWriter(usernow, kafkaUConsole.this);
-                List<String> mess=zkw.read();
-                System.out.println("messages in interface"+mess);
 
-                this.addMessage(mess);
+                List<String> mess=zkw.read();
+
+                if (!mess.isEmpty()) {
+                    System.out.println("messages in run"+mess);
+                    // mini.addMessage(mess);
+                    this.addMessage(mess, logger);
+                }
+
+
             } catch (KeeperException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -275,19 +302,23 @@ public class kafkaUConsole extends Thread {
             }
         }
 
-    }*/
+    }
 
-        public void addMessage(List<String> messages){
+
+    public void addMessage(List<String> messages,Logger logger){
         kafkaChat.setVisible(true);
-        chatLabel.setVisible(true);
 
-            for (String received : messages) {
-                System.out.println("message single message"+ received);
-                kafkaChat.append(received);
-                kafkaChat.append("\n");
-            }
+        for (String received : messages) {
+
+            logger.info(received);
+            System.out.println("message singlemessage"+ received);
+
+            //TODO: WHY MESSAGES ARE NOT APPEARING !!!!
+            //kafkaChatTest.setText(received);
+            // kafkaChat.append(received);
+            //kafkaChat.setText("\n");
         }
-
+    }
 
 
 
